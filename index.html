@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e3c72">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="退休組合儀表盤">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-512.png">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <title>個人投資組合再平衡儀表盤</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', 'PingFang HK', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+            color: #182230;
+        }
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 38px 40px;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.3em; margin-bottom: 8px; font-weight: 700; }
+        .header .date { font-size: 1.15em; opacity: 0.92; }
+        .header .sub { font-size: 0.95em; opacity: 0.85; margin-top: 10px; max-width: 880px; margin-left: auto; margin-right: auto; }
+        .content { padding: 38px 40px; }
+        .section { margin-bottom: 40px; }
+        .section-title {
+            font-size: 1.6em;
+            color: #1e3c72;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            display: flex;
+            align-items: center;
+        }
+        .section-title .icon { margin-right: 10px; font-size: 1.15em; }
+
+        /* market overview */
+        .market-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .market-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px; padding: 22px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .market-card h3 { color: #1e3c72; margin-bottom: 14px; font-size: 1.2em; }
+        .market-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .market-item:last-child { border-bottom: none; }
+        .market-name { font-weight: 600; color: #333; }
+        .market-value { font-weight: 700; font-size: 1.05em; }
+
+        /* color convention: 漲/買/看多 = 紅；跌/賣/看空 = 綠 */
+        .pos { color: #e74c3c; }
+        .neg { color: #27ae60; }
+        .neutral { color: #7f8c8d; }
+        .buy { color: #e74c3c; font-weight: 700; }
+        .sell { color: #27ae60; font-weight: 700; }
+        .hold { color: #f39c12; font-weight: 700; }
+
+        /* news */
+        .news-list { list-style: none; }
+        .news-item {
+            background: #f8f9fa; padding: 18px 20px; margin-bottom: 14px;
+            border-radius: 10px; border-left: 4px solid #667eea; transition: transform 0.2s;
+        }
+        .news-item:hover { transform: translateX(5px); }
+        .news-title { font-weight: 600; color: #333; margin-bottom: 6px; }
+        .news-content { color: #555; font-size: 0.95em; }
+        .news-content b { color: #1e3c72; }
+
+        /* stock recommendation cards */
+        .stock-rec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+        .stock-recommendation {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 15px; padding: 22px; border: 2px solid #f39c12;
+        }
+        .stock-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; }
+        .stock-name { font-size: 1.25em; font-weight: 700; color: #2c3e50; }
+        .stock-rating { background: #e74c3c; color: white; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.9em; white-space: nowrap; }
+        .stock-rating.hold { background: #f39c12; }
+        .stock-rating.sell { background: #27ae60; }
+        .stock-signal { font-size: 0.95em; color: #444; margin-bottom: 6px; }
+        .stock-align { font-size: 0.9em; color: #1e3c72; margin-bottom: 8px; }
+        .stock-reason { font-size: 0.9em; color: #555; }
+        .action-btn {
+            border: none; padding: 10px 18px; border-radius: 25px; font-size: 0.95em;
+            cursor: pointer; margin-top: 12px; font-weight: 600; color: #fff; width: 100%;
+        }
+        .action-btn.buy { background: linear-gradient(135deg, #e74c3c 0%, #ff6b6b 100%); }
+        .action-btn.sell { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); }
+        .action-btn.hold { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #333; }
+
+        /* KPI */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+        .kpi-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+        }
+        .kpi-label { font-size: 0.9em; opacity: 0.9; margin-bottom: 8px; }
+        .kpi-value { font-size: 1.7em; font-weight: 700; }
+        .kpi-sub { font-size: 0.8em; opacity: 0.85; margin-top: 6px; }
+
+        /* tables */
+        table { width: 100%; border-collapse: collapse; font-size: 0.92em; }
+        th, td { border-bottom: 1px solid #e4e9f2; padding: 10px 9px; vertical-align: top; text-align: left; }
+        th { color: #5b6b80; font-weight: 600; background: #f5f7fb; }
+
+        /* holdings inputs */
+        .hold-input {
+            width: 100%; padding: 6px 8px; border: 1px solid #cfd8e6; border-radius: 6px;
+            font-size: 0.9em; color: #182230; background: #fff;
+        }
+        .hold-input:focus { outline: 2px solid #a9c2f5; border-color: #3567b7; }
+        .btn {
+            display: inline-block; padding: 8px 14px; border: 1px solid #cfd8e6; border-radius: 8px;
+            background: #fff; color: #182230; font-size: 0.9em; cursor: pointer; margin: 4px 6px 4px 0;
+        }
+        .btn:hover { background: #f0f4fb; }
+        .btn-primary { background: #3567b7; color: #fff; border-color: #3567b7; }
+
+        /* allocation bars */
+        .bar-row { margin-bottom: 14px; }
+        .bar-head { display: flex; justify-content: space-between; font-size: 0.9em; color: #5b6b80; margin-bottom: 6px; }
+        .track { width: 100%; height: 14px; background: #edf1f7; border-radius: 999px; overflow: hidden; position: relative; }
+        .current { height: 100%; background: linear-gradient(90deg,#e74c3c,#ff6b6b); border-radius: 999px; }
+        .target { height: 6px; background: #3567b7; border-radius: 999px; position: absolute; top: 4px; left: 0; }
+
+        /* boxes */
+        .summary-box { background: #fff3cd; border-left: 5px solid #ffc107; padding: 18px 20px; border-radius: 10px; margin: 16px 0; }
+        .summary-box h3 { color: #856404; margin-bottom: 10px; }
+        .summary-box ul, .section-list { margin-left: 20px; color: #555; line-height: 1.8; }
+        .risk-warning { background: #f8d7da; border-left: 5px solid #dc3545; padding: 18px 20px; border-radius: 10px; margin: 16px 0; color: #721c24; }
+        .risk-warning h3 { margin-bottom: 10px; }
+        .risk-warning ul { margin-left: 20px; line-height: 1.8; }
+
+        /* mpf */
+        .mpf-section { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 15px; padding: 26px; }
+        .mpf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; margin-top: 16px; }
+        .mpf-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+        .mpf-fund-name { font-weight: 700; color: #2c3e50; margin-bottom: 8px; }
+        .mpf-performance { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.9em; }
+
+        .footer { background: #2c3e50; color: white; text-align: center; padding: 22px; margin-top: 30px; font-size: 0.9em; }
+        .footer p { opacity: 0.9; }
+        .hint-banner {
+            background: linear-gradient(135deg, #e0f7fa 0%, #e8f5e9 100%);
+            border: 2px solid #4db6ac; border-radius: 14px; padding: 18px 22px; margin-bottom: 24px;
+            color: #1b5e52; font-size: 0.95em;
+        }
+        .hint-banner b { color: #00695c; }
+        .update-banner {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+            background: #1e3c72; color: #fff; padding: 12px 16px; text-align: center;
+            font-size: 0.95em; cursor: pointer; display: none; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .small { font-size: 0.85em; color: #5b6b80; }
+
+        @media (max-width: 760px) {
+            .container { margin: 8px; border-radius: 12px; }
+            .header h1 { font-size: 1.7em; }
+            .content { padding: 20px; }
+            .section-title { font-size: 1.3em; }
+        }
+    </style>
+</head>
+<body>
+<div class="update-banner" id="update-banner">🔄 檢測到新版本，點擊此處刷新</div>
+<div class="container">
+    <div class="header">
+        <h1>📊 個人投資組合再平衡儀表盤</h1>
+        <div class="date">每日更新日：<span id="updated-date">--</span></div>
+        <div class="sub">適用對象：50 歲、穩健型個人投資者，目標為退休儲備。覆蓋港股、美股市場影響、金價、銀價、中國發展影響、黃金配置與 Manulife MPF 選擇。漲＝紅、跌＝綠（中國香港市場慣例）。</div>
+    </div>
+
+    <div class="content">
+        <div class="hint-banner">
+            💡 <b>你的持倉決定分析精度：</b>下方「我的持倉收集」只在你的瀏覽器（localStorage）保存，不上傳。錄入股數與現價後，本頁會自動精算 <b>總資產、累計收益、權益暴露、最大再平衡缺口</b>，並把「當前 vs 目標配置」長條圖、<b>逐筆再平衡建議表（含建議加碼／減持金額）</b>、再平衡後預期配置全部用你的真實數據重算。
+        </div>
+
+        <!-- 我的持倉收集 -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🗂️</span>我的持倉收集（本地保存，僅存於你的瀏覽器）</h2>
+            <p class="small">錄入真實股數、成本價與現價後自動計算市值、浮動盈虧、佔比，並按目標配置桶匯總。黃金與 MPF 請在「股數」填 1、「現價」填總市值，桶選對應類別。資料不離開本機。</p>
+            <div style="margin:12px 0 14px;">
+                <button class="btn btn-primary" onclick="addHolding()">＋ 增加一行</button>
+                <button class="btn" onclick="saveHoldings()">儲存本機</button>
+                <button class="btn" onclick="loadHoldingsClick()">讀取本機</button>
+                <button class="btn" onclick="resetHoldings()">清空</button>
+            </div>
+            <table id="hold-table">
+                <thead>
+                    <tr>
+                        <th style="width:84px;">代碼</th>
+                        <th style="width:104px;">名稱</th>
+                        <th style="width:74px;">股數</th>
+                        <th style="width:84px;">成本價</th>
+                        <th style="width:84px;">現價</th>
+                        <th style="width:118px;">配置桶</th>
+                        <th style="width:96px;">市值</th>
+                        <th style="width:96px;">浮動盈虧</th>
+                        <th style="width:74px;">佔比</th>
+                        <th style="width:54px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="hold-body"></tbody>
+            </table>
+        </div>
+
+        <!-- 個人化精算 -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🎯</span>個人化精算（錄入持倉後自動更新）</h2>
+            <div id="personalized">
+                <div class="summary-box">尚未錄入持倉數值。請在上方「我的持倉收集」填寫股數與現價（黃金／MPF：股數填 1、現價填總市值），下方即會自動精算總資產、收益、當前 vs 目標配置與逐筆再平衡建議。</div>
+            </div>
+        </div>
+
+        <!-- 全球市場概覽 -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🌍</span>全球市場概覽</h2>
+            <div class="market-grid" id="market-grid"></div>
+            <p class="small" id="market-note"></p>
+        </div>
+
+        <!-- 今日重點新聞 -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">📰</span>今日重點新聞與市場影響</h2>
+            <p id="market-summary" class="small"></p>
+            <ul class="news-list" id="news-rows"></ul>
+            <h3 style="margin:18px 0 10px; color:#1e3c72;">市場影響判斷</h3>
+            <table id="influence-table"><thead><tr><th>資產／因素</th><th>短期判斷</th><th>組合動作</th></tr></thead><tbody id="influence-rows"></tbody></table>
+        </div>
+
+        <!-- 你的股票 vs 新聞趨勢 -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🔍</span>你的股票 vs 新聞趨勢：買／賣／持有建議</h2>
+            <p class="small">以下逐隻對照當日新聞趨勢信號；若你已在「我的持倉收集」錄入相同代碼，建議會結合你的真實佔比進一步精算（見上方個人化精算）。</p>
+            <div class="stock-rec-grid" id="stock-recs"></div>
+        </div>
+
+        <!-- 黃金白銀 -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🥇</span>黃金／白銀投資分析</h2>
+            <div class="summary-box">
+                <h3>📊 當前貴金屬參考</h3>
+                <div class="market-grid" id="metal-grid" style="margin:0;"></div>
+            </div>
+            <div class="stock-recommendation" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);">
+                <h3 style="margin-bottom:12px;">🥇 黃金策略（穩健退休倉核心）</h3>
+                <p>黃金是組合的「保險倉」而非交易倉：目標 8%–12%，不足時於回調分批補，不追單日急漲。建議 <b>實金 2%–3%（極端避險）＋ 黃金 ETF 7%–8%（流動性與再平衡）</b>。</p>
+                <p class="small">ETF 選擇：<b>2840</b> 適合大額主倉；<b>3170</b> 看重費率適合慢慢累積；<b>3081</b> 門檻友好適合月供小額。實金買賣價差與保管成本較高，不宜做主要再平衡工具。</p>
+            </div>
+            <div class="stock-recommendation" style="background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%); margin-top:16px;">
+                <h3 style="margin-bottom:12px;">🥈 白銀策略（小比例輔助）</h3>
+                <p>白銀波動約為黃金 2 倍，無央行購銀托底。建議不超過 2%，僅作貴金屬增強，不替代黃金。保守型退休倉可只配黃金。</p>
+            </div>
+        </div>
+
+        <!-- Manulife MPF -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🏦</span>Manulife MPF：你的配置、每日價格與 Profile 評估</h2>
+
+            <!-- 你的實際配置 -->
+            <div class="summary-box" style="border-left-color:#3567b7; background:#eef4fb;">
+                <h3 style="color:#1e3c72;">📌 你目前的 MPF 實際配置（包括已有結餘及每月供款）</h3>
+                <p id="mpf-current"></p>
+                <p class="small" id="mpf-profile-warning" style="margin-top:8px;"></p>
+            </div>
+
+            <!-- 價格追蹤 -->
+            <h3 style="margin:18px 0 10px; color:#1e3c72;">💰 MPF 基金價格追蹤（每日 16:00 自動更新）</h3>
+            <table id="mpf-price-table"><thead><tr><th>基金代碼</th><th>名稱</th><th>最新單位價格（港元）</th><th>截至</th><th>類型／風險</th></tr></thead><tbody id="mpf-price-rows"></tbody></table>
+            <p class="small" style="margin-top:8px;">說明：SHK126 與 SHK145 均為 100% 港股股票基金，價格隨恒指波動；以下價格由每日 16:00 自動化從宏利官網抓取最新公布值。</p>
+
+            <!-- Profile 評估 -->
+            <div class="mpf-section" style="margin-top:18px;">
+                <h3 style="margin-bottom:8px; color:#2c3e50;">🩺 Profile 評估：100% 港股股票是否要改？</h3>
+                <p id="mpf-assessment" style="line-height:1.8;"></p>
+            </div>
+
+            <!-- 建議配置 -->
+            <h3 style="margin:18px 0 10px; color:#1e3c72;">🎯 建議改為的 MPF 配置（穩健型・50 歲・退休儲備）</h3>
+            <table id="mpf-rec-table"><thead><tr><th>基金（代碼）</th><th>建議比例</th><th>原因</th></tr></thead><tbody id="mpf-rec-rows"></tbody></table>
+            <p class="small" id="mpf-alternative" style="margin-top:10px;"></p>
+
+            <!-- 通用框架卡 -->
+            <div class="mpf-section" style="margin-top:18px;">
+                <h3 style="margin-bottom:6px; color:#2c3e50;">📊 MPF 穩健配置框架（通用參考）</h3>
+                <div class="mpf-grid" id="mpf-cards"></div>
+            </div>
+
+            <!-- 行動建議 -->
+            <div class="stock-recommendation" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; margin-top:16px;">
+                <h3 style="margin-bottom:12px; color:white;">🎯 給你的 MPF 行動建議</h3>
+                <p id="mpf-action"></p>
+                <p class="small" style="color:#e8eefc; margin-top:10px;" id="mpf-note"></p>
+            </div>
+
+            <!-- 管理錦囊 -->
+            <div class="summary-box" style="margin-top:16px;">
+                <h3 style="color:#856404;">💡 MPF 管理錦囊</h3>
+                <ul>
+                    <li><b>整合戶口：</b>把分散的 MPF 轉到同一宏利戶口，方便管理並降低費用。</li>
+                    <li><b>自願性供款（TVC）：</b>每年最高扣稅港幣 60,000 元，有餘力建議參與。</li>
+                    <li><b>定期檢視：</b>至少每半年檢討一次，大漲後把股票比例降回目標區間。</li>
+                    <li><b>基金轉換：</b>同計劃內轉換免費，但不建議頻繁操作。</li>
+                    <li><b>把 MPF 併入總資產：</b>在「我的持倉收集」加兩行、桶選「MPF」，股數填持有單位數、現價填最新單位價格（SHK126 / SHK145），即可併入總資產與再平衡精算。</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- MPF / 月供更新 -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🔄</span>MPF／月供股票安排更新</h2>
+            <p id="mpf-update" class="small"></p>
+            <h3 style="margin:14px 0 8px; color:#1e3c72;">月供股票安排</h3>
+            <table id="monthly-table"><thead><tr><th>代碼</th><th>當前安排</th><th>今日更新建議</th></tr></thead><tbody id="monthly-rows"></tbody></table>
+        </div>
+
+        <!-- 今日綜合操作建議 -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">✅</span>今日綜合操作建議</h2>
+            <div class="market-grid">
+                <div class="stock-recommendation" style="background: linear-gradient(135deg, #e74c3c 0%, #ff6b6b 100%); color:white;">
+                    <h3 style="color:white; margin-bottom:10px;">✅ 建議買入／加碼</h3>
+                    <ul style="color:white; margin-left:18px;" id="act-buy"></ul>
+                </div>
+                <div class="stock-recommendation" style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color:white;">
+                    <h3 style="color:white; margin-bottom:10px;">❌ 建議減持／回避</h3>
+                    <ul style="color:white; margin-left:18px;" id="act-sell"></ul>
+                </div>
+                <div class="stock-recommendation" style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);">
+                    <h3 style="margin-bottom:10px;">⏸️ 持有觀望</h3>
+                    <ul style="margin-left:18px;" id="act-hold"></ul>
+                </div>
+            </div>
+            <div class="summary-box" style="margin-top:20px;">
+                <h3 style="color:#856404;">📋 今日操作清單</h3>
+                <ol style="margin-left:20px; margin-top:10px; line-height:2;" id="action-checklist"></ol>
+            </div>
+        </div>
+
+        <!-- 基礎框架建議 -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🧭</span>基礎框架再平衡建議（通用模板）</h2>
+            <p class="small">以下為按你股票池與目標配置得出的通用建議；上方「個人化精算」會按你的真實佔比重算逐筆金額。</p>
+            <table id="framework-table"><thead><tr><th>標的／資產</th><th>動作</th><th>優先級</th><th>建議</th></tr></thead><tbody id="framework-rows"></tbody></table>
+        </div>
+
+        <!-- 節奏與費稅 -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">⏱️</span>再平衡節奏與費稅提示</h2>
+            <ul class="section-list">
+                <li><b>月度：</b>只用新資金微調，先補目標不足的 2800、941、1038、黃金 ETF 與 MPF。</li>
+                <li><b>季度：</b>檢查偏離度；任何配置桶偏離目標超過 5 個百分點，啟動一次輕度再平衡。</li>
+                <li><b>半年度：</b>處理高波動倉與重複暴露；科技、周期、半導體若明顯跑贏，主動回吐利潤給防守層。</li>
+                <li><b>港股：</b>留意印花稅、交易徵費、平台費與佣金，勿為 1%–2% 小偏離頻繁換倉。</li>
+                <li><b>美股：</b>直接買美股／美股 ETF 需注意匯率與股息預扣稅，勿把美股新聞轉成過度交易。</li>
+                <li><b>黃金：</b>實物買賣價差、保管與保險成本通常高於 ETF；ETF 則比較管理費、流動性與追蹤偏差。</li>
+                <li><b>MPF：</b>不適合高頻操作，按半年或一年覆核更合理。</li>
+            </ul>
+        </div>
+
+        <!-- 風險提示 -->
+        <div class="risk-warning">
+            <h3>⚠️ 重要風險提示</h3>
+            <ul>
+                <li>本儀表盤僅供組合框架與風險管理參考，不構成個人化證券投資建議或要約。</li>
+                <li>投資涉及風險，基金單位價格可升可跌，過往表現不代表未來回報。</li>
+                <li>股票、貴金屬等波動性較大，可能導致本金損失；匯率波動會影響海外投資回報。</li>
+                <li>在作出任何投資決策前，請諮詢專業財務顧問，並依自身財務狀況與風險承受能力決定。</li>
+            </ul>
+        </div>
+
+        <!-- 數據來源 -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">📡</span>數據來源</h2>
+            <p class="small" id="footer-note"></p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 個人投資組合再平衡儀表盤 ｜ 僅供參考，不構成投資建議</p>
+        <p style="margin-top:8px; opacity:0.8;">持倉資料僅存於你的瀏覽器本機 ｜ 每日 16:00 自動更新新聞與趨勢（至 2026-08-05）</p>
+    </div>
+</div>
+
+<script src="daily-data.js"></script>
+<script>
+    const TARGETS = {
+        "高股息/防守": 35,
+        "宽基ETF": 12,
+        "平台科技": 18,
+        "硬科技": 5,
+        "周期/资源": 4,
+        "黄金": 10,
+        "白银": 2,
+        "MPF": 14
+    };
+    const BUCKETS = Object.keys(TARGETS);
+    const HOLD_KEY = 'retire_holdings_v1';
+    let holdings = [];
+
+    function normCode(c) { return String(c || '').replace(/^0+/, '').toUpperCase(); }
+
+    function defaultHolding() {
+        return { code: '', name: '', shares: '', avg: '', price: '', bucket: '高股息/防守' };
+    }
+    function num(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+    function fmt(n) {
+        if (!isFinite(n)) return '0';
+        return Math.round(n).toLocaleString('en-US');
+    }
+    function fmt2(n) {
+        if (!isFinite(n)) return '0.00';
+        return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    /* ---------- daily data ---------- */
+    function renderDaily() {
+        const d = window.DAILY || {};
+        if (d.date) document.getElementById('updated-date').textContent = d.date;
+        if (d.marketSummary) document.getElementById('market-summary').innerHTML = d.marketSummary;
+        if (d.mpfUpdate) document.getElementById('mpf-update').innerHTML = d.mpfUpdate;
+        if (d.mpfNote) document.getElementById('mpf-note').textContent = d.mpfNote;
+        if (d.footerNote) document.getElementById('footer-note').textContent = d.footerNote;
+
+        fillMarketCards(d.marketCards || []);
+        fillMetalCards(d.metalCards || []);
+        fillList('news-rows', d.newsRows || [], function (r) {
+            return '<li class="news-item"><div class="news-title">' + (r.theme || '') + '</div><div class="news-content"><b>新聞：</b>' + (r.news || '') + '<br><b>對退休組合的含義：</b>' + (r.impact || '') + '</div></li>';
+        });
+        fillRows('influence-rows', d.influenceRows || [], ['asset', 'view', 'action']);
+        fillStockRecs(d.stockRows || []);
+        fillRows('monthly-rows', d.monthlyRows || [], ['code', 'plan', 'update']);
+        fillMpfCards(d.mpfRows || []);
+        renderMpfFundPrices(d.mpfFundPrices || []);
+        renderMpfProfile(d.mpfProfile || null);
+        fillFramework(d.frameworkRows || []);
+        buildActionSummary(d);
+    }
+
+    function fillMarketCards(cards) {
+        const grid = document.getElementById('market-grid');
+        grid.innerHTML = '';
+        cards.forEach(function (c) {
+            let items = (c.items || []).map(function (it) {
+                return '<div class="market-item"><span class="market-name">' + it.name + '</span><span class="market-value ' + (it.cls || 'neutral') + '">' + it.value + '</span></div>';
+            }).join('');
+            grid.innerHTML += '<div class="market-card"><h3>' + c.title + '</h3>' + items + '</div>';
+        });
+        const note = window.DAILY && window.DAILY.marketNote;
+        if (note) document.getElementById('market-note').textContent = note;
+    }
+    function fillMetalCards(cards) {
+        const grid = document.getElementById('metal-grid');
+        if (!cards.length) { grid.innerHTML = '<div class="market-item"><span class="market-name">現貨黃金</span><span class="market-value neutral">見每日數據</span></div><div class="market-item"><span class="market-name">現貨白銀</span><span class="market-value neutral">見每日數據</span></div>'; return; }
+        grid.innerHTML = cards.map(function (it) {
+            return '<div class="market-item"><span class="market-name">' + it.name + '</span><span class="market-value ' + (it.cls || 'neutral') + '">' + it.value + '</span></div>';
+        }).join('');
+    }
+    function fillList(id, rows, fn) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = rows.map(fn).join('');
+    }
+    function fillRows(tbodyId, rows, keys) {
+        const tb = document.getElementById(tbodyId);
+        if (!tb) return;
+        tb.innerHTML = '';
+        (rows || []).forEach(function (r) {
+            const tr = document.createElement('tr');
+            keys.forEach(function (k) {
+                const td = document.createElement('td');
+                td.innerHTML = r[k] != null ? r[k] : '';
+                tr.appendChild(td);
+            });
+            tb.appendChild(tr);
+        });
+    }
+    function findStockRow(code) {
+        const rows = (window.DAILY && window.DAILY.stockRows) || [];
+        const nc = normCode(code);
+        for (let i = 0; i < rows.length; i++) {
+            if (normCode(rows[i].code) === nc) return rows[i];
+        }
+        return null;
+    }
+    function fillStockRecs(rows) {
+        const wrap = document.getElementById('stock-recs');
+        wrap.innerHTML = '';
+        rows.forEach(function (r) {
+            const cls = r.cls || 'hold';
+            let rating = '⭐⭐⭐', rcls = 'hold', label = r.action || '持有觀望';
+            if (cls === 'buy') { rating = '⭐⭐⭐⭐'; rcls = ''; }
+            else if (cls === 'sell') { rating = '⭐⭐'; rcls = 'sell'; }
+            const entry = document.createElement('div');
+            entry.className = 'stock-recommendation';
+            entry.innerHTML =
+                '<div class="stock-header"><div class="stock-name">' + (r.name || '') + ' (' + (r.code || '') + ')</div>' +
+                '<div class="stock-rating ' + rcls + '">' + rating + '</div></div>' +
+                '<div class="stock-signal"><b>新聞趨勢：</b>' + (r.signal || '') + '</div>' +
+                '<div class="stock-align"><b>與組合框架：</b>' + (r.alignment || '') + '</div>' +
+                '<div class="stock-reason">' + (r.reason || '') + '</div>' +
+                '<button class="action-btn ' + cls + '">' + (r.action || '持有') + '</button>';
+            wrap.appendChild(entry);
+        });
+    }
+    function fillMpfCards(rows) {
+        const grid = document.getElementById('mpf-cards');
+        grid.innerHTML = '';
+        (rows || []).forEach(function (r) {
+            const c = document.createElement('div');
+            c.className = 'mpf-card';
+            c.innerHTML = '<div class="mpf-fund-name">' + (r.type || '') + '</div>' +
+                '<div class="mpf-performance"><span><b>建議比例：</b>' + (r.weight || '') + '</span></div>' +
+                '<p style="margin-top:8px; font-size:0.85em; color:#666;">' + (r.logic || '') + '</p>';
+            grid.appendChild(c);
+        });
+    }
+    function fillFramework(rows) {
+        const tb = document.getElementById('framework-rows');
+        tb.innerHTML = '';
+        (rows || []).forEach(function (r) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = '<td>' + (r.target || '') + '</td><td class="' + (r.cls || 'hold') + '">' + (r.action || '') + '</td><td>' + (r.prio || '') + '</td><td>' + (r.advice || '') + '</td>';
+            tb.appendChild(tr);
+        });
+    }
+    function renderMpfFundPrices(rows) {
+        const tb = document.getElementById('mpf-price-rows');
+        if (!tb) return;
+        tb.innerHTML = '';
+        rows.forEach(function (r) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = '<td><b>' + r.code + '</b></td><td>' + r.name + '</td><td class="' + (r.cls || 'neutral') + '">' + r.price + '</td><td>' + (r.asof || '') + '</td><td class="small">' + (r.note || '') + '</td>';
+            tb.appendChild(tr);
+        });
+    }
+    function renderMpfProfile(p) {
+        if (!p) return;
+        if (p.current) document.getElementById('mpf-current').innerHTML = p.current;
+        if (p.warning) document.getElementById('mpf-profile-warning').innerHTML = '<b style="color:#c0392b;">⚠️ ' + p.warning + '</b>';
+        if (p.assessment) document.getElementById('mpf-assessment').textContent = p.assessment;
+        if (p.action) { const a = document.getElementById('mpf-action'); if (a) a.innerHTML = p.action; }
+        const tb = document.getElementById('mpf-rec-rows');
+        if (tb && p.recommended) {
+            tb.innerHTML = '';
+            p.recommended.forEach(function (r) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + r.code + '</td><td class="buy">' + r.weight + '</td><td>' + r.reason + '</td>';
+                tb.appendChild(tr);
+            });
+        }
+        if (p.alternative) document.getElementById('mpf-alternative').innerHTML = '🔁 <b>替代方案：</b>' + p.alternative;
+    }
+    function buildActionSummary(d) {
+        const buy = [], sell = [], hold = [];
+        (d.stockRows || []).forEach(function (r) {
+            const tag = (r.name || '') + ' (' + (r.code || '') + ')：' + (r.action || '');
+            if (r.cls === 'buy') buy.push(tag);
+            else if (r.cls === 'sell') sell.push(tag);
+            else hold.push(tag);
+        });
+        document.getElementById('act-buy').innerHTML = buy.map(function (t) { return '<li>' + t + '</li>'; }).join('');
+        document.getElementById('act-sell').innerHTML = sell.map(function (t) { return '<li>' + t + '</li>'; }).join('');
+        document.getElementById('act-hold').innerHTML = hold.map(function (t) { return '<li>' + t + '</li>'; }).join('');
+        const cl = [
+            '檢視「我的持倉收集」是否已錄入最新股數與現價；若有變動請儲存本機。',
+            '查看上方「個人化精算」的最大再平衡缺口，優先補目標不足的桶（通常為黃金與寬基 ETF）。',
+            '月供維持 2800 / 941 / 1038 為核心，1378 降為戰術小倉。',
+            '成長股（700 / 9988 / 3690 / 1810 / 981）只在反彈中優化，不擴總倉。',
+            '黃金於回調分批補至 8%–12%；MPF 維持偏防守組合。',
+            '保留 20%–30% 現金應對波動，勿為小偏離頻繁換倉。'
+        ];
+        document.getElementById('action-checklist').innerHTML = cl.map(function (t) { return '<li>' + t + '</li>'; }).join('');
+    }
+
+    /* ---------- holdings ---------- */
+    function loadHoldings() {
+        try {
+            const raw = localStorage.getItem(HOLD_KEY);
+            holdings = raw ? JSON.parse(raw) : [];
+        } catch (e) { holdings = []; }
+        if (!holdings.length) holdings = [defaultHolding()];
+    }
+    function saveHoldings() {
+        localStorage.setItem(HOLD_KEY, JSON.stringify(holdings));
+        flashSaved();
+    }
+    function flashSaved() {
+        const btn = event && event.target;
+        if (btn) { const t = btn.textContent; btn.textContent = '已儲存 ✓'; setTimeout(function () { btn.textContent = t; }, 1200); }
+    }
+    function loadHoldingsClick() { loadHoldings(); renderHoldings(); }
+    function resetHoldings() {
+        if (!confirm('確定清空本機持倉記錄？')) return;
+        holdings = [defaultHolding()];
+        try { localStorage.removeItem(HOLD_KEY); } catch (e) {}
+        renderHoldings();
+    }
+    function addHolding() { holdings.push(defaultHolding()); renderHoldings(); }
+
+    function renderHoldings() {
+        const tb = document.getElementById('hold-body');
+        tb.innerHTML = '';
+        holdings.forEach(function (h, i) {
+            const tr = document.createElement('tr');
+            tr.appendChild(makeInputCell(h.code, function (v) { holdings[i].code = v; }));
+            tr.appendChild(makeInputCell(h.name, function (v) { holdings[i].name = v; }));
+            tr.appendChild(makeNumCell(h.shares, function (v) { holdings[i].shares = v; recompute(); }));
+            tr.appendChild(makeNumCell(h.avg, function (v) { holdings[i].avg = v; recompute(); }));
+            tr.appendChild(makeNumCell(h.price, function (v) { holdings[i].price = v; recompute(); }));
+            const bTd = document.createElement('td');
+            const sel = document.createElement('select');
+            sel.className = 'hold-input';
+            BUCKETS.forEach(function (b) {
+                const opt = document.createElement('option');
+                opt.value = b; opt.textContent = b;
+                if (b === h.bucket) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            sel.onchange = function () { holdings[i].bucket = sel.value; recompute(); };
+            bTd.appendChild(sel);
+            tr.appendChild(bTd);
+            const mv = document.createElement('td'); mv.id = 'mv-' + i;
+            const gn = document.createElement('td'); gn.id = 'gn-' + i;
+            const wt = document.createElement('td'); wt.id = 'wt-' + i;
+            const del = document.createElement('td');
+            const b = document.createElement('button'); b.className = 'btn'; b.textContent = '刪';
+            b.onclick = function () { holdings.splice(i, 1); renderHoldings(); };
+            del.appendChild(b);
+            tr.appendChild(mv); tr.appendChild(gn); tr.appendChild(wt); tr.appendChild(del);
+            tb.appendChild(tr);
+        });
+        recompute();
+    }
+    function makeInputCell(val, oninput) {
+        const td = document.createElement('td');
+        const el = document.createElement('input');
+        el.className = 'hold-input'; el.value = val;
+        el.oninput = function () { oninput(el.value); };
+        td.appendChild(el); return td;
+    }
+    function makeNumCell(val, oninput) {
+        const td = document.createElement('td');
+        const el = document.createElement('input');
+        el.className = 'hold-input'; el.value = val; el.type = 'number';
+        el.oninput = function () { oninput(el.value); recompute(); };
+        td.appendChild(el); return td;
+    }
+
+    function computeHoldings() {
+        let total = 0, cost = 0, gainAll = 0;
+        const bucketSums = {}; BUCKETS.forEach(function (b) { bucketSums[b] = 0; });
+        const vals = holdings.map(function (h) {
+            const mv = num(h.shares) * num(h.price);
+            const avg = num(h.avg);
+            const gain = (num(h.price) - avg) * num(h.shares);
+            total += mv; cost += avg * num(h.shares); gainAll += gain;
+            if (bucketSums[h.bucket] != null) bucketSums[h.bucket] += mv;
+            return { mv: mv, gain: gain };
+        });
+        return { total: total, cost: cost, gainAll: gainAll, bucketSums: bucketSums, vals: vals };
+    }
+
+    function recompute() {
+        const c = computeHoldings();
+        holdings.forEach(function (h, i) {
+            const v = c.vals[i];
+            const mvEl = document.getElementById('mv-' + i);
+            const gnEl = document.getElementById('gn-' + i);
+            const wtEl = document.getElementById('wt-' + i);
+            if (mvEl) mvEl.textContent = fmt(v.mv);
+            if (gnEl) {
+                gnEl.textContent = (v.gain >= 0 ? '+' : '') + fmt(v.gain);
+                gnEl.className = v.gain >= 0 ? 'buy' : 'sell';
+            }
+            if (wtEl) wtEl.textContent = c.total > 0 ? (v.mv / c.total * 100).toFixed(1) + '%' : '--';
+        });
+        renderPersonalized(c);
+    }
+
+    function renderPersonalized(c) {
+        const box = document.getElementById('personalized');
+        if (!c) c = computeHoldings();
+        if (c.total <= 0) {
+            box.innerHTML = '<div class="summary-box">尚未錄入持倉數值。請在上方「我的持倉收集」填寫股數與現價（黃金／MPF：股數填 1、現價填總市值），下方即會自動精算總資產、收益、當前 vs 目標配置與逐筆再平衡建議。</div>';
+            return;
+        }
+        const total = c.total;
+        const pct = c.cost > 0 ? (c.gainAll / c.cost * 100) : 0;
+        const equity = (c.bucketSums['高股息/防守'] + c.bucketSums['宽基ETF'] + c.bucketSums['平台科技'] + c.bucketSums['硬科技'] + c.bucketSums['周期/资源']) / total * 100;
+
+        // largest gap
+        let maxGap = { name: '', diff: 0 };
+        BUCKETS.forEach(function (b) {
+            const cur = c.bucketSums[b] / total * 100;
+            const diff = cur - TARGETS[b];
+            if (Math.abs(diff) > Math.abs(maxGap.diff)) maxGap = { name: b, diff: diff };
+        });
+
+        let html = '';
+        // KPI
+        html += '<div class="kpi-grid">';
+        html += kpiCard('總資產', 'HK$' + fmt(total), '已按錄入持倉計算');
+        html += kpiCard('累計收益', (c.gainAll >= 0 ? '+' : '') + 'HK$' + fmt(c.gainAll), '累計收益率 ' + (c.gainAll >= 0 ? '+' : '') + fmt2(pct) + '%');
+        html += kpiCard('權益暴露（股票＋ETF＋成長）', fmt(equity) + '%', '目標約 74%（不含黃金與 MPF）');
+        const gapTxt = (maxGap.diff >= 0 ? '偏高 ' : '偏低 ') + fmt(Math.abs(maxGap.diff)) + 'pp';
+        html += kpiCard('最大再平衡缺口', maxGap.name, gapTxt + '（相對目標）');
+        html += '</div>';
+
+        // allocation bars
+        html += '<h3 style="margin:22px 0 10px; color:#1e3c72;">當前 vs 目標配置（按你的真實持倉）</h3>';
+        html += '<div style="background:#f8f9fb; border-radius:12px; padding:18px;">';
+        BUCKETS.forEach(function (b) {
+            const cur = c.bucketSums[b] / total * 100;
+            const tgt = TARGETS[b];
+            const diff = cur - tgt;
+            const diffCls = diff < -3 ? 'sell' : (diff > 3 ? 'buy' : 'hold');
+            html += '<div class="bar-row"><div class="bar-head"><span>' + b + '</span><span>當前 ' + fmt(cur) + '% / 目標 ' + tgt + '% <span class="' + diffCls + '">(' + (diff >= 0 ? '+' : '') + fmt(diff) + 'pp)</span></span></div>' +
+                '<div class="track"><div class="current" style="width:' + Math.min(100, cur) + '%"></div><div class="target" style="width:' + tgt + '%"></div></div></div>';
+        });
+        html += '</div>';
+
+        // personalized rebalance table
+        html += '<h3 style="margin:22px 0 10px; color:#1e3c72;">逐筆再平衡建議（含建議加碼／減持金額）</h3>';
+        html += '<table id="pers-table"><thead><tr><th>代碼／名稱</th><th>現值</th><th>佔比</th><th>目標桶</th><th>偏差</th><th>新聞信號</th><th>個人化建議</th><th>理由</th></tr></thead><tbody>';
+        let buyTotal = 0, sellTotal = 0;
+        holdings.forEach(function (h, i) {
+            const mv = c.vals[i].mv;
+            if (mv <= 0) return;
+            const cur = mv / total * 100;
+            const tgt = TARGETS[h.bucket] || 0;
+            const gap = tgt - cur;
+            const targetVal = tgt / 100 * total;
+            const delta = targetVal - mv; // positive => need to add
+            const news = findStockRow(h.code);
+            const vote = news ? news.cls : 'hold';
+            let finalAct, cls, amtTxt, reason;
+            if (gap > 1) {
+                buyTotal += delta;
+                amtTxt = '加碼 ≈ HK$' + fmt(delta);
+                reason = '桶權重低於目標 ' + fmt(gap) + 'pp，建議分批買入。';
+                if (vote === 'buy') { finalAct = '買入／加碼'; cls = 'buy'; }
+                else if (vote === 'sell') { finalAct = '暫緩加碼'; cls = 'hold'; reason = '框架偏低但新聞偏弱，先觀望。'; }
+                else { finalAct = '補倉'; cls = 'hold'; }
+            } else if (gap < -1) {
+                sellTotal += -delta;
+                amtTxt = '減持 ≈ HK$' + fmt(-delta);
+                reason = '桶權重高於目標 ' + fmt(-gap) + 'pp，建議減持。';
+                if (vote === 'sell') { finalAct = '減持／賣出'; cls = 'sell'; }
+                else if (vote === 'buy') { finalAct = '持有（已超重）'; cls = 'hold'; reason = '新聞看好但已超重，不宜再加。'; }
+                else { finalAct = '減持'; cls = 'sell'; }
+            } else {
+                amtTxt = '維持';
+                reason = '權重接近目標。';
+                if (vote === 'buy') { finalAct = '持有／可低吸'; cls = 'buy'; }
+                else if (vote === 'sell') { finalAct = '持有／留意'; cls = 'sell'; }
+                else { finalAct = '持有'; cls = 'hold'; }
+            }
+            if (news && !reason.match(/新聞|框架/)) reason += ' 新聞：' + (news.signal || '');
+            const codeName = (h.code || '?') + ' ' + (h.name || '');
+            const newsSig = news ? (news.signal || '—') : '（無對應新聞）';
+            html += '<tr><td>' + codeName + '</td><td>HK$' + fmt(mv) + '</td><td>' + fmt(cur) + '%</td><td>' + h.bucket + ' (' + tgt + '%)</td>' +
+                '<td class="' + (gap < -1 ? 'sell' : (gap > 1 ? 'buy' : 'hold')) + '">' + (gap >= 0 ? '+' : '') + fmt(gap) + 'pp</td>' +
+                '<td>' + newsSig + '</td><td class="' + cls + '">' + finalAct + '<br><span class="small">' + amtTxt + '</span></td><td class="small">' + reason + '</td></tr>';
+        });
+        html += '</tbody></table>';
+
+        // expected after rebalance
+        html += '<div class="summary-box" style="margin-top:18px;">';
+        html += '<h3>📋 再平衡後預期配置（若按目標執行）</h3>';
+        html += '<ul><li>預計需要<b class="buy"> 加碼 ≈ HK$' + fmt(buyTotal) + '</b>（補目標不足的桶，通常為黃金、寬基 ETF、高股息防守）。</li>';
+        html += '<li>預計可以<b class="sell"> 減持 ≈ HK$' + fmt(sellTotal) + '</b>（回收超重的桶，通常為平台科技、周期／資源）。</li>';
+        html += '<li>執行後組合將轉為「高股息核心＋寬基＋有限成長＋貴金屬防守＋MPF 緩衝」，權益波動低於現狀。</li></ul>';
+        html += '</div>';
+
+        box.innerHTML = html;
+    }
+    function kpiCard(label, value, sub) {
+        return '<div class="kpi-card"><div class="kpi-label">' + label + '</div><div class="kpi-value">' + value + '</div><div class="kpi-sub">' + sub + '</div></div>';
+    }
+
+    loadHoldings();
+    renderHoldings();
+    renderDaily();
+</script>
+<script>
+    // PWA：註冊 Service Worker，並在偵測到新版本時顯示刷新提示
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+            navigator.serviceWorker.register('./service-worker.js').then(function (reg) {
+                if (reg && reg.addEventListener) {
+                    reg.addEventListener('updatefound', function () {
+                        const installing = reg.installing;
+                        if (installing) installing.addEventListener('statechange', function () {
+                            if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+                                const b = document.getElementById('update-banner');
+                                if (b) { b.style.display = 'block'; b.onclick = function () { location.reload(); }; }
+                            }
+                        });
+                    });
+                }
+            }).catch(function () {});
+        });
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', function () {
+            if (!refreshing) { refreshing = true; location.reload(); }
+        });
+    }
+</script>
+</body>
+</html>

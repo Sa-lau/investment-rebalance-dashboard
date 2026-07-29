@@ -1,0 +1,17 @@
+{
+  "name": "個人投資組合再平衡儀表盤",
+  "short_name": "退休組合儀表盤",
+  "description": "50歲穩健型退休儲備投資組合再平衡儀表盤（港股／美股／金銀／MPF）",
+  "lang": "zh-HK",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#667eea",
+  "theme_color": "#1e3c72",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
