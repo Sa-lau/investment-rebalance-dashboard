@@ -169,12 +169,43 @@
             font-size: 0.95em; cursor: pointer; display: none; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         .small { font-size: 0.85em; color: #5b6b80; }
+        .chg-up { color: #e74c3c; font-weight: 600; }
+        .chg-dn { color: #27ae60; font-weight: 600; }
+        .stock-live { margin: 10px 0 6px; padding: 8px 12px; background: #f4f8ff; border-radius: 10px; border: 1px solid #dbe7fb; font-size: 0.92em; color: #1e3c72; }
+        .stock-live b { font-size: 1.05em; }
+        .live-bar { display: flex; align-items: center; gap: 10px; margin: 6px 0 14px; flex-wrap: wrap; }
+        #live-price-status { font-size: 0.85em; color: #5b6b80; }
+
+        /* 頂部指數列 */
+        .idx-section { background: #fff; border: 1px solid #e3e9f2; border-radius: 14px; padding: 16px 18px 14px; margin-bottom: 22px; box-shadow: 0 2px 10px rgba(30,60,114,0.06); }
+        .idx-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+        .idx-head h2 { font-size: 1.15em; color: #1e3c72; margin: 0; }
+        .idx-group { margin-bottom: 10px; }
+        .idx-group-label { font-size: 0.78em; letter-spacing: 1px; color: #8595ab; font-weight: 700; margin: 8px 0 6px; }
+        .idx-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 10px; }
+        .idx-card { border: 1px solid #e3e9f2; border-radius: 12px; padding: 10px 12px; background: #fafcff; }
+        .idx-card.up { border-left: 4px solid #e74c3c; }
+        .idx-card.dn { border-left: 4px solid #27ae60; }
+        .idx-card.na { border-left: 4px solid #c9d3e0; }
+        /* 新鮮度指示器 */
+        .idx-freshness, .live-freshness { font-size: 0.85em; font-weight: 600; padding: 3px 8px; border-radius: 6px; display: inline-block; }
+        .idx-freshness.fresh, .live-freshness.fresh { background: #e8f5e9; color: #2e7d32; }
+        .idx-freshness.moderate, .live-freshness.moderate { background: #fff8e1; color: #f57f17; }
+        .idx-freshness.stale, .live-freshness.stale { background: #fce4ec; color: #c62828; }
+        .idx-freshness.live-ok, .live-freshness.live-ok { background: #e3f2fd; color: #1565c0; }
+        .idx-name { font-size: 0.82em; color: #5b6b80; margin-bottom: 4px; }
+        .idx-val { font-size: 1.32em; font-weight: 700; color: #1e3c72; line-height: 1.2; }
+        .idx-chg { font-size: 0.85em; margin-top: 3px; }
+        .idx-asof { font-size: 0.72em; color: #9aa8ba; margin-top: 3px; }
+        #idx-status { font-size: 0.82em; color: #5b6b80; }
 
         @media (max-width: 760px) {
             .container { margin: 8px; border-radius: 12px; }
             .header h1 { font-size: 1.7em; }
             .content { padding: 20px; }
             .section-title { font-size: 1.3em; }
+            .idx-grid { grid-template-columns: repeat(2, 1fr); }
+            .idx-val { font-size: 1.15em; }
         }
     </style>
 </head>
@@ -188,6 +219,18 @@
     </div>
 
     <div class="content">
+        <!-- 頂部：主要指數即時報價 -->
+        <div class="idx-section">
+            <div class="idx-head">
+                <h2>📈 主要指數即時報價</h2>
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-primary" onclick="fetchIndexQuotes()">🔄 刷新指數</button>
+                    <span id="idx-status">載入中…</span>
+                </div>
+            </div>
+            <div id="idx-content"></div>
+        </div>
+
         <div class="hint-banner">
             💡 <b>你的持倉決定分析精度：</b>下方「我的持倉收集」只在你的瀏覽器（localStorage）保存，不上傳。錄入股數與現價後，本頁會自動精算 <b>總資產、累計收益、權益暴露、最大再平衡缺口</b>，並把「當前 vs 目標配置」長條圖、<b>逐筆再平衡建議表（含建議加碼／減持金額）</b>、再平衡後預期配置全部用你的真實數據重算。
         </div>
@@ -248,7 +291,11 @@
         <!-- 你的股票 vs 新聞趨勢 -->
         <div class="section">
             <h2 class="section-title"><span class="icon">🔍</span>你的股票 vs 新聞趨勢：買／賣／持有建議</h2>
-            <p class="small">以下逐隻對照當日新聞趨勢信號；若你已在「我的持倉收集」錄入相同代碼，建議會結合你的真實佔比進一步精算（見上方個人化精算）。</p>
+            <p class="small">以下逐隻對照當日新聞趨勢信號；每隻股票下方的「現價」<b>優先顯示嵌入數據</b>（由本地更新腳本抓取，不依賴瀏覽器外部 API）。頁面載入後會背景嘗試即時抓取（騰訊／Yahoo），成功則自動替換為即時價並標示「即時」；若你的網絡擋掉了所有行情源，嵌入值仍準確可用。若你已在「我的持倉收集」錄入相同代碼，建議會結合��的真實佔比進一步精算（見上方個人化精算）。</p>
+            <div class="live-bar">
+                <button class="btn btn-primary" onclick="fetchLivePrices()">🔄 刷新即時價格</button>
+                <span id="live-price-status">載入中…</span>
+            </div>
             <div class="stock-rec-grid" id="stock-recs"></div>
         </div>
 
@@ -399,7 +446,612 @@
     </div>
 </div>
 
-<script src="daily-data.js"></script>
+<script>
+window.DAILY = {
+  "date": "2026-08-04",
+  "marketSummary": "2026-07-30 盤前：美股 7/29 顯著回檔，道指 -2.2%、標指 -1.5%、納指 -1.7%，費城半導體 -5%；主因中東局勢升級推升油價（紐約期油 +6.6%）及美聯儲維持利率不變卻釋鷹派信號（3 名委員主張加息，30 年美債收益率升至 5.20% 創 19 年高）。港股逆勢強：7/29 恒指收升 2.0% 報 25,807 升穿 250 天線，7/30 騰訊、港交所破頂帶動大市再創近一年高；但個股分化，中芯 -7.74%、阿里 -1.58%。現貨金約 4,020 美元/盎司，低位反彈。中國政治局會議月底舉行，市場憧憬逆周期政策。",
+  "marketNote": "市場數值為 2026-08-04 收盤資訊整理，每日 16:05 自動更新；漲＝紅、跌＝綠（中國香港市場慣例）。",
+  "marketCards": [
+    {
+      "title": "🇺🇸 美股（2026-08-04 收盤）",
+      "items": [
+        {
+          "name": "道瓊斯指數",
+          "value": "+1.32%",
+          "cls": "pos"
+        },
+        {
+          "name": "標普500",
+          "value": "+1.48%",
+          "cls": "pos"
+        },
+        {
+          "name": "納斯達克",
+          "value": "+2.13%",
+          "cls": "pos"
+        }
+      ]
+    },
+    {
+      "title": "🇭🇰 港股（2026-08-04）",
+      "items": [
+        {
+          "name": "恒生指數",
+          "value": "-0.60%",
+          "cls": "neg"
+        },
+        {
+          "name": "騰訊700",
+          "value": "-0.57%",
+          "cls": "neg"
+        },
+        {
+          "name": "中芯981",
+          "value": "+4.98%",
+          "cls": "pos"
+        },
+        {
+          "name": "阿里9988",
+          "value": "+0.48%",
+          "cls": "pos"
+        }
+      ]
+    },
+    {
+      "title": "💰 貴金屬",
+      "items": []
+    },
+    {
+      "title": "⛽ 能源 / 匯率",
+      "items": []
+    }
+  ],
+  "metalCards": [
+    {
+      "name": "現貨黃金",
+      "value": "US$4118.1",
+      "cls": "pos"
+    },
+    {
+      "name": "現貨白銀",
+      "value": "US$59.12",
+      "cls": "neg"
+    },
+    {
+      "name": "金銀比",
+      "value": "US$59.12",
+      "cls": "neutral"
+    },
+    {
+      "name": "人民幣金價",
+      "value": "US$4118.1",
+      "cls": "neutral"
+    }
+  ],
+  "newsRows": [
+    {
+      "theme": "即時新聞 #1",
+      "news": "比特幣漲至63,800美元；Strategy披露近期出售持倉",
+      "impact": "—"
+    },
+    {
+      "theme": "即時新聞 #2",
+      "news": "阿里雲企業級智能分析產品Quick BI完成AI-native架構升級",
+      "impact": "—"
+    },
+    {
+      "theme": "即時新聞 #3",
+      "news": "《大行》里昂：中國批准八個新核電機組 看好核電設備股",
+      "impact": "—"
+    },
+    {
+      "theme": "即時新聞 #4",
+      "news": "《全日速報》恆指全日收報25,852點 跌156點; 恆生科技指數全日收報4,885點 升10點 建行跌逾3% 藥明康德、理文造紙、卓越睿新創新高 成交暢旺",
+      "impact": "—"
+    },
+    {
+      "theme": "即時新聞 #5",
+      "news": "《港樓》傳佐敦「太極軒314」住宅部分1.74億沽  涉59伙回報料逾5.6厘",
+      "impact": "—"
+    }
+  ],
+  "influenceRows": [
+    {
+      "asset": "港股",
+      "view": "政策憧憬+資金輪動支撐，恒指升穿 250 天線，但個股分化、中芯急跌，短線不便宜。",
+      "action": "月供繼續；優先 2800、3110、941、1038、5、939、3988；981 控制。"
+    },
+    {
+      "asset": "美股",
+      "view": "利率與地緣雙壓，波動偏高。",
+      "action": "不追逐高估值科技；已有成長倉持有但不加。"
+    },
+    {
+      "asset": "黃金",
+      "view": "實際利率與美元短線壓制，但避險與通脹擔憂支撐中期。",
+      "action": "目標 8%–12%；不足分批補，優先低成本 ETF。"
+    },
+    {
+      "asset": "白銀",
+      "view": "工業屬性強、波動大於黃金。",
+      "action": "僅小比例觀察，不替代黃金。"
+    },
+    {
+      "asset": "中國發展",
+      "view": "降稅／流動性／穩市利好風險溢價，但地產與制裁是反向變數。",
+      "action": "買現金流確定性，少買純政策想像。"
+    }
+  ],
+  "stockRows": [
+    {
+      "code": "3",
+      "name": "香港中華煤氣",
+      "signal": "今日 -0.79%（較前收）；高股息防守底倉，走勢平穩",
+      "alignment": "一致",
+      "action": "繼續月供／持有",
+      "cls": "buy",
+      "reason": "現金流穩定器，修復後不急加。"
+    },
+    {
+      "code": "5",
+      "name": "滙豐控股",
+      "signal": "今日 -1.01%（較前收）；高股息防守底倉，走勢平穩",
+      "alignment": "一致",
+      "action": "繼續月供／持有",
+      "cls": "buy",
+      "reason": "新增等回調，避免利率反轉衝擊。"
+    },
+    {
+      "code": "12",
+      "name": "恒基地產",
+      "signal": "今日 -0.43%（較前收）；周期/半導體波動，維持減倉觀望",
+      "alignment": "偏高（目標壓縮）",
+      "action": "減倉／分批減",
+      "cls": "sell",
+      "reason": "除非明顯折讓，否則排加倉後段。"
+    },
+    {
+      "code": "700",
+      "name": "騰訊控股",
+      "signal": "今日 -0.57%（較前收）；科技/互聯網橫行觀望",
+      "alignment": "一致（成長衛星）",
+      "action": "持有／控制倉位",
+      "cls": "hold",
+      "reason": "中期邏輯在，短線波動說明不宜重倉追。"
+    },
+    {
+      "code": "939",
+      "name": "建設銀行",
+      "signal": "今日 -3.37%（較前收）；高股息/公用防守回調，提供低吸機會",
+      "alignment": "一致",
+      "action": "繼續月供／趁回調加",
+      "cls": "buy",
+      "reason": "股息與估值仍適合退休組合，但不追單日強勢。"
+    },
+    {
+      "code": "941",
+      "name": "中國移動",
+      "signal": "今日 -1.32%（較前收）；高股息防守底倉，走勢平穩",
+      "alignment": "一致（目標高股息核心）",
+      "action": "繼續月供／持有",
+      "cls": "buy",
+      "reason": "現金流與央企基礎設施屬性，適合退休核心；不追單日強勢。"
+    },
+    {
+      "code": "981",
+      "name": "中芯國際",
+      "signal": "今日 +4.98%（較前收）；周期/半導體反彈，宜趁高減倉",
+      "alignment": "偏高（目標僅 5%）",
+      "action": "減倉／趁反彈減",
+      "cls": "sell",
+      "reason": "受地緣、估值、周期三重影響，不適合穩健退休主倉。"
+    },
+    {
+      "code": "1038",
+      "name": "長江基建",
+      "signal": "今日 -0.32%（較前收）；高股息防守底倉，走勢平穩",
+      "alignment": "一致",
+      "action": "繼續月供／持有",
+      "cls": "buy",
+      "reason": "現金流穩定，但近期已升，新增不追高。"
+    },
+    {
+      "code": "1378",
+      "name": "中國宏橋",
+      "signal": "今日 +2.35%（較前收）；周期/半導體反彈，宜趁高減倉",
+      "alignment": "偏高（目標僅 4%）",
+      "action": "減倉／趁反彈減",
+      "cls": "sell",
+      "reason": "鋁價與能源敏感，不適合作退休現金流主倉；轉為戰術小倉。"
+    },
+    {
+      "code": "1810",
+      "name": "小米集團-W",
+      "signal": "今日 +0.00%（較前收）；科技/互聯網橫行觀望",
+      "alignment": "一致（衛星）",
+      "action": "持有／控制倉位",
+      "cls": "hold",
+      "reason": "彈性高，放衛星倉，不擴總倉。"
+    },
+    {
+      "code": "2638",
+      "name": "港燈-SS",
+      "signal": "今日 -1.38%（較前收）；高股息防守底倉，走勢平穩",
+      "alignment": "一致",
+      "action": "繼續月供／持有",
+      "cls": "buy",
+      "reason": "適合作公用收息倉。"
+    },
+    {
+      "code": "2800",
+      "name": "盈富基金",
+      "signal": "今日 -0.53%（較前收）；高股息防守底倉，走勢平穩",
+      "alignment": "一致（目標寬基核心）",
+      "action": "繼續月供／持有",
+      "cls": "buy",
+      "reason": "最合適港股寬基核心，降低個股錯誤。"
+    },
+    {
+      "code": "3110",
+      "name": "GX恒生股息",
+      "signal": "今日 -0.95%（較前收）；高股息防守底倉，走勢平穩",
+      "alignment": "一致（優先）",
+      "action": "繼續月供／持有",
+      "cls": "buy",
+      "reason": "比單隻銀行更適合做高股息籃子。"
+    },
+    {
+      "code": "3690",
+      "name": "美團-W",
+      "signal": "今日 -0.80%（較前收）；科技/互聯網橫行觀望",
+      "alignment": "一致（成長衛星）",
+      "action": "持有／控制倉位",
+      "cls": "hold",
+      "reason": "作為成長衛星，不作退休核心。"
+    },
+    {
+      "code": "3988",
+      "name": "中國銀行",
+      "signal": "今日 -2.73%（較前收）；高股息/公用防守回調，提供低吸機會",
+      "alignment": "一致",
+      "action": "繼續月供／趁回調加",
+      "cls": "buy",
+      "reason": "適合作銀行高息分散。"
+    },
+    {
+      "code": "9988",
+      "name": "阿里巴巴-W",
+      "signal": "今日 +0.48%（較前收）；科技/互聯網橫行觀望",
+      "alignment": "一致（成長衛星）",
+      "action": "持有／控制倉位",
+      "cls": "hold",
+      "reason": "AI雲與電商減虧是中期邏輯，波動仍高，單隻不超權益倉 8%–10%。"
+    }
+  ],
+  "monthlyRows": [
+    {
+      "code": "2800",
+      "plan": "月供核心",
+      "update": "繼續，作為寬基底倉優先。"
+    },
+    {
+      "code": "941",
+      "plan": "月供核心",
+      "update": "繼續，現金流核心。"
+    },
+    {
+      "code": "1038",
+      "plan": "月供核心",
+      "update": "繼續，但不追高。"
+    },
+    {
+      "code": "1378",
+      "plan": "月供",
+      "update": "降為戰術補倉，不再等權月供。"
+    },
+    {
+      "code": "3110",
+      "plan": "原獨立持倉",
+      "update": "可納入月供高股息籃子，優先加。"
+    },
+    {
+      "code": "700 / 9988",
+      "plan": "獨立",
+      "update": "持有，反彈中優化不擴大。"
+    },
+    {
+      "code": "3690 / 1810 / 981",
+      "plan": "獨立",
+      "update": "控制總量，981 優先減（7/30 -7.74%）。"
+    }
+  ],
+  "mpfRows": [
+    {
+      "type": "保證/保守/貨幣或短債",
+      "weight": "20%–30%",
+      "logic": "降低波動，作為退休前防守資金。"
+    },
+    {
+      "type": "環球債券/亞洲債券",
+      "weight": "25%–35%",
+      "logic": "提供收益底座，但利率上行階段債券淨值仍會波動。"
+    },
+    {
+      "type": "環球平衡/核心累積基金",
+      "weight": "25%–35%",
+      "logic": "用全球分散降低單一中國香港市場風險。"
+    },
+    {
+      "type": "香港/中國股票基金",
+      "weight": "5%–10%",
+      "logic": "已有港股自選股較多，MPF 內不宜再重倉同一風險源。"
+    },
+    {
+      "type": "高增長股票基金",
+      "weight": "0%–10%",
+      "logic": "僅退休年期仍超過 10 年且能承受波動時保留小比例。"
+    }
+  ],
+  "mpfUpdate": "2026-07-30 更新：你 MPF 現為 100% 港股股票（SHK126 80% + SHK145 20%）。最新價：SHK126 24.824（截至 28/07，較前日 -0.74%）、SHK145 15.140（+0.23%）。集中度偏高、與私人港股倉重疊，建議參考下方 Profile 評估，分 2–3 次把 SHK126 降至 20%、SHK145 降至 0%，釋出資金轉入核心累積基金（SHK148）、65歲後基金（SHK149）、香港債券基金（SHK132）。月供股票方面，保留 2800/941/1038 為核心，1378 降權，3110 納入高股息月供，981 優先減。",
+  "mpfNote": "MPF 重點不是單年最高回報，而是避免退休前遇到大回撤時被迫賣出。建議每半年檢查股債比例，市場大漲後自動把股票比例降回目標區間。",
+  "frameworkRows": [
+    {
+      "target": "2800",
+      "action": "繼續買入",
+      "prio": "高",
+      "advice": "作為月供核心底倉，優先於高波動成長股，負責提升組合的寬基屬性。",
+      "cls": "buy"
+    },
+    {
+      "target": "941、1038",
+      "action": "繼續買入",
+      "prio": "高",
+      "advice": "保留高股息與公用事業現金流屬性，更貼合退休儲備目標。",
+      "cls": "buy"
+    },
+    {
+      "target": "1378",
+      "action": "降權月供",
+      "prio": "高",
+      "advice": "周期波動較強，不應與 2800/941/1038 同權長期月供；建議降為戰術補倉位。",
+      "cls": "sell"
+    },
+    {
+      "target": "700、9988",
+      "action": "持有，逢調整分批買",
+      "prio": "中高",
+      "advice": "保留為質量成長主倉，但總和不宜超過組合 12%–15%，避免把退休倉做成高 beta 倉位。",
+      "cls": "hold"
+    },
+    {
+      "target": "3690、1810、981",
+      "action": "減倉或只保留小倉",
+      "prio": "高",
+      "advice": "這些倉位對組合波動貢獻偏大；若已有盈利，優先回收部分倉位，轉入 2800、高股息和黃金。981 受半導體急跌拖累，優先減。",
+      "cls": "sell"
+    },
+    {
+      "target": "939、3988、5、3、2638、3110",
+      "action": "保留為收益底倉",
+      "prio": "中",
+      "advice": "這部分是你的防守層，可以保留，但要避免單一銀行或單一公用事業過度集中。",
+      "cls": "hold"
+    },
+    {
+      "target": "12",
+      "action": "視反彈逐步減",
+      "prio": "中",
+      "advice": "地產相關久期較長，防禦性不如公用事業與銀行，優先級低於其他高股息資產。",
+      "cls": "sell"
+    },
+    {
+      "target": "黃金",
+      "action": "建立核心配置",
+      "prio": "高",
+      "advice": "建議總組合先補到 10%，分 3–4 批完成，不追單日急漲。黃金是穩定器，不是交易倉。",
+      "cls": "buy"
+    },
+    {
+      "target": "白銀",
+      "action": "只做小倉",
+      "prio": "低",
+      "advice": "建議不超過 2%，僅作為貴金屬增強。白銀波動明顯高於黃金。",
+      "cls": "buy"
+    },
+    {
+      "target": "Manulife MPF",
+      "action": "改為穩健組合",
+      "prio": "高",
+      "advice": "若你不想頻繁維護，採用低維護、偏防守的 MPF 配比比增加單隻股票更重要。",
+      "cls": "buy"
+    }
+  ],
+  "mpfFundPrices": [
+    {
+      "code": "SHK126",
+      "name": "宏利MPF香港股票基金",
+      "price": "24.824",
+      "asof": "28/07/2026",
+      "cls": "neg",
+      "note": "100% 港股股票，風險級別 6；較前日 -0.74%"
+    },
+    {
+      "code": "SHK145",
+      "name": "宏利MPF恒指ESG基金",
+      "price": "15.140",
+      "asof": "28/07/2026",
+      "cls": "pos",
+      "note": "100% 港股股票（恒指 ESG）；較前日 +0.23%"
+    }
+  ],
+  "mpfProfile": {
+    "current": "100% 港股股票：SHK126 香港股票基金 80% ＋ SHK145 恒指ESG基金 20%（包括已有結餘及每月供款）。",
+    "warning": "關鍵風險：① 100% 股票、零債券與零保證 → 沒有下行緩衝；② 100% 香港市場 → 與你私人港股倉（941/1038/2800/9988/700/3690 等）高度重疊；③ 臨近退休仍承受全股波動 → 與「穩健型退休儲備」目標不符。",
+    "assessment": "你現時 MPF 100% 配置於兩隻港股股票基金，等於把強積金這一「退休防守桶」也完全暴露在單一市場（香港）與單一資產（股票）之下。以 50 歲、穩健型、目標為退休儲備而言，這個集中度明顯偏高：一旦港股出現 20%–30% 回撤，MPF 也會同步大跌，正好撞上你最需要本金穩定的退休臨近期。而你個人股票池本身已大量持有港股，MPF 再疊加 100% 港股，整體組合對香港單一市場的相關性過高，分散不足。",
+    "recommended": [
+      {
+        "code": "SHK148 核心累積基金",
+        "weight": "40%",
+        "reason": "混合資產（股債兼備），波動低於純股票，提供環球分散，適合作為 MPF 主核心。"
+      },
+      {
+        "code": "SHK149 65歲後基金",
+        "weight": "25%",
+        "reason": "混合資產、極低風險級別（3），退休前守本金的首選緩衝。"
+      },
+      {
+        "code": "SHK126 香港股票基金",
+        "weight": "20%",
+        "reason": "保留部分港股敞口，與你私人港股倉邏輯一致，但比例由 80% 降至 20%。"
+      },
+      {
+        "code": "SHK132 香港債券基金",
+        "weight": "15%",
+        "reason": "債券提供收益與下行保護，降低整體波動。"
+      }
+    ],
+    "alternative": "若不想自己調整股債比例，可改用計劃內「目標退休基金」系列（SHK140 2025／SHK141 2030／SHK142 2035 等），會按距離退休年齡自動降低股票比例；50 歲對應約 SHK141/142。或採 DIS 預設投資策略但手動把權益比例壓低。",
+    "action": "建議分 2–3 次（例如每 3–6 個月一次）把 SHK126 由 80% 降至 20%、SHK145 降至 0%，釋出資金轉入 SHK148（40%）、SHK149（25%）、SHK132（15%）。同計劃內轉換免費，不必一次過做，可趁市場反彈、港股比例偏高時執行，減少在低位被迫賣出。"
+  },
+  "oneLiner": "本地腳本 2026-08-04 自動更新：恒指 -0.60%、現貨金 +0.67%；個股即時價與買賣信號已刷新（規則型，非 AI）。",
+  "footerNote": "新聞與產品說明基於 2026-07-30 公開網頁資訊整理，來源包括信達國際、AAStocks、金融界、騰訊新聞、網易等。個股即時價格由瀏覽器透過 Yahoo Finance 直接抓取（免費、每次開啟自動更新）。港股漲跌顏色按中國香港市場慣例：漲為紅，跌為綠。本儀表盤用於組合框架與風險管理參考，不構成個人化證券投資建議。",
+  "livePrices": {
+    "3": {
+      "price": 6.905,
+      "prevClose": 6.96,
+      "asof": "2026-08-04"
+    },
+    "5": {
+      "price": 166.5,
+      "prevClose": 168.2,
+      "asof": "2026-08-04"
+    },
+    "12": {
+      "price": 28.02,
+      "prevClose": 28.14,
+      "asof": "2026-08-04"
+    },
+    "700": {
+      "price": 487.6,
+      "prevClose": 490.40000000000003,
+      "asof": "2026-08-04"
+    },
+    "939": {
+      "price": 8.89,
+      "prevClose": 9.200000000000001,
+      "asof": "2026-08-04"
+    },
+    "941": {
+      "price": 82.5,
+      "prevClose": 83.6,
+      "asof": "2026-08-04"
+    },
+    "981": {
+      "price": 65.3,
+      "prevClose": 62.199999999999996,
+      "asof": "2026-08-04"
+    },
+    "1038": {
+      "price": 61.95,
+      "prevClose": 62.150000000000006,
+      "asof": "2026-08-04"
+    },
+    "1378": {
+      "price": 23.5,
+      "prevClose": 22.96,
+      "asof": "2026-08-04"
+    },
+    "1810": {
+      "price": 27.96,
+      "prevClose": 27.96,
+      "asof": "2026-08-04"
+    },
+    "2638": {
+      "price": 6.44,
+      "prevClose": 6.53,
+      "asof": "2026-08-04"
+    },
+    "2800": {
+      "price": 26.32,
+      "prevClose": 26.46,
+      "asof": "2026-08-04"
+    },
+    "2840": {
+      "price": 2940,
+      "prevClose": 2940,
+      "asof": "2026-08-04"
+    },
+    "3081": {
+      "price": 19.19,
+      "prevClose": 19.17,
+      "asof": "2026-08-04"
+    },
+    "3110": {
+      "price": 31.3,
+      "prevClose": 31.6,
+      "asof": "2026-08-04"
+    },
+    "3170": {
+      "price": 12.85,
+      "prevClose": 12.83,
+      "asof": "2026-08-04"
+    },
+    "3690": {
+      "price": 92.7,
+      "prevClose": 93.45,
+      "asof": "2026-08-04"
+    },
+    "3988": {
+      "price": 5.335,
+      "prevClose": 5.485,
+      "asof": "2026-08-04"
+    },
+    "9988": {
+      "price": 125.8,
+      "prevClose": 125.2,
+      "asof": "2026-08-04"
+    }
+  },
+  "indexQuotes": {
+    "hsi": {
+      "price": 25852.92,
+      "prevClose": 26009.399999999998,
+      "asof": "2026-08-04"
+    },
+    "hsce": {
+      "price": 8574.26,
+      "prevClose": 8652.15,
+      "asof": "2026-08-04"
+    },
+    "hstech": {
+      "price": 4885.61,
+      "prevClose": 4875.61,
+      "asof": "2026-08-04"
+    },
+    "dji": {
+      "price": 53178.41,
+      "prevClose": 52485.030000000006,
+      "asof": "2026-08-04"
+    },
+    "gspc": {
+      "price": 7600.5,
+      "prevClose": 7489.72,
+      "asof": "2026-08-04"
+    },
+    "ixic": {
+      "price": 25913.9,
+      "prevClose": 25373.850000000002,
+      "asof": "2026-08-04"
+    },
+    "n225": {
+      "price": 63957.53,
+      "prevClose": 63754.9,
+      "asof": "2026-08-04"
+    }
+  }
+};
+
+</script>
 <script>
     const TARGETS = {
         "高股息/防守": 35,
@@ -503,11 +1155,21 @@
     function fillStockRecs(rows) {
         const wrap = document.getElementById('stock-recs');
         wrap.innerHTML = '';
+        const lpMap = (window.DAILY && window.DAILY.livePrices) || {};
         rows.forEach(function (r) {
             const cls = r.cls || 'hold';
             let rating = '⭐⭐⭐', rcls = 'hold', label = r.action || '持有觀望';
             if (cls === 'buy') { rating = '⭐⭐⭐⭐'; rcls = ''; }
             else if (cls === 'sell') { rating = '⭐⭐'; rcls = 'sell'; }
+            // 嵌入現價（瀏覽器即時抓取失敗時仍準確）；背景即時成功會由 updateLivePriceUI 覆蓋
+            const qr = lpMap[normCode(r.code)];
+            let liveHtml = '現價：<span class="small">載入中…</span>';
+            if (qr && qr.price != null) {
+                const prev = qr.prevClose || qr.price;
+                const pct = prev ? (qr.price - prev) / prev * 100 : 0;
+                const pcls = pct > 0.05 ? 'chg-up' : (pct < -0.05 ? 'chg-dn' : 'neutral');
+                liveHtml = '現價：<b>HK$' + fmt(qr.price) + '</b> <span class="' + pcls + '">' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%</span> <span class="small" style="color:#888;">（嵌入 ' + (qr.asof || '') + '）</span>';
+            }
             const entry = document.createElement('div');
             entry.className = 'stock-recommendation';
             entry.innerHTML =
@@ -516,6 +1178,7 @@
                 '<div class="stock-signal"><b>新聞趨勢：</b>' + (r.signal || '') + '</div>' +
                 '<div class="stock-align"><b>與組合框架：</b>' + (r.alignment || '') + '</div>' +
                 '<div class="stock-reason">' + (r.reason || '') + '</div>' +
+                '<div class="stock-live" id="live-' + normCode(r.code) + '">' + liveHtml + '</div>' +
                 '<button class="action-btn ' + cls + '">' + (r.action || '持有') + '</button>';
             wrap.appendChild(entry);
         });
@@ -588,6 +1251,446 @@
             '保留 20%–30% 現金應對波動，勿為小偏離頻繁換倉。'
         ];
         document.getElementById('action-checklist').innerHTML = cl.map(function (t) { return '<li>' + t + '</li>'; }).join('');
+    }
+
+    /* ---------- 即時價格（瀏覽器抓取，免費） ---------- */
+    const LIVE = {};
+    const LIVE_KEY = 'retire_live_v1';
+    function yahooSym(code) {
+        const n = parseInt(String(code).replace(/\D/g, ''), 10);
+        if (!n) return null;
+        return String(n).padStart(4, '0') + '.HK';   // Yahoo 港股為 4 位代碼，例如 0003.HK / 0700.HK
+    }
+    /* ---------- 主要報價來源：騰訊行情（直接開放 CORS，免代理、即時） ---------- */
+    // qt.gtimg.cn 回應為 GBK 編碼，格式：v_s_hkHSI="100~恒生指数~HSI~25847.450~-11.430~-0.04~...";
+    // 欄位：[3]=現價 [4]=漲跌額 [5]=漲跌幅% [6]=成交量
+    //
+    // 三層防線對抗網絡快取：
+    //   1) fetch + 最強反快取 header（Cache-Control / Pragma / If-Modified-Since 清空）
+    //   2) 若 fetch 回傳的價跟上次完全一樣 → 自動用 JSONP <script> 標籤重抓（瀏覽器不會快取 script 注入）
+    //   3) JSONP 也一樣 → 標記為可能陳舊，提示用户
+
+    /* 上次成功價格（用於檢測陳舊） */
+    var _lastTencentPrices = {};
+
+    async function fetchTencent(symList) {
+        var out = {};
+        if (!symList || !symList.length) return out;
+        var CH = 40;
+        for (var i = 0; i < symList.length; i += CH) {
+            var batch = symList.slice(i, i + CH);
+            // === 第一層：fetch（帶最強反快取） ===
+            var fetchOk = await tryFetchTencent(batch, out);
+            // === 第二層：JSONP 後備（對比價格，若全相同則重抓） ===
+            if (fetchOk && batch.some(function (s) { return out[s] && _lastTencentPrices[s] && out[s].price === _lastTencentPrices[s].price; })) {
+                var jsonpOut = {};
+                var jsonpOk = await tryJsonpTencent(batch, jsonpOut);
+                if (jsonpOk) {
+                    Object.keys(jsonpOut).forEach(function (k) { out[k] = jsonpOut[k]; });
+                }
+            }
+            // 記錄本次價格供下次比較
+            Object.keys(out).forEach(function (k) { _lastTencentPrices[k] = { price: out[k].price }; });
+        }
+        return out;
+    }
+
+    /** 第一層：fetch + 反快取 header */
+    async function tryFetchTencent(batch, out) {
+        try {
+            var ctrl = new AbortController();
+            var to = setTimeout(function () { ctrl.abort(); }, 9000);
+            var r = await fetch('https://qt.gtimg.cn/q=' + batch.join(',') + '&_t=' + Date.now() + '&_r=' + Math.random().toString(36).slice(2),
+                {
+                    signal: ctrl.signal,
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+                        'Pragma': 'no-cache',
+                        'If-Modified-Since': 'Thu, 01 Jan 1970 00:00:00 GMT'
+                    }
+                });
+            clearTimeout(to);
+            if (!r.ok) return false;
+            var txt = '';
+            try {
+                var buf = await r.arrayBuffer();
+                try { txt = new TextDecoder('gbk').decode(buf); }
+                catch (e2) { txt = new TextDecoder('utf-8').decode(buf); }
+            } catch (e) { return false; }
+            return parseTencentTxt(txt, out);
+        } catch (e) { return false; }
+    }
+
+    /** 第二層：JSONP <script> 標籤注入（瀏覽器永不快取動態 script） */
+    function tryJsonpTencent(batch, out) {
+        return new Promise(function (resolve) {
+            var cbName = '_txcb_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
+            var url = 'https://qt.gtimg.cn/q=' + batch.join(',') + '&cb=' + cbName + '&_j=' + Date.now();
+            window[cbName] = function () {
+                try {
+                    var txt = '';
+                    // 騰訊 JSONP 回調會把 v_xxx="..." 作為字符串參數傳入
+                    for (var ai = 0; ai < arguments.length; ai++) {
+                        if (typeof arguments[ai] === 'string') txt += arguments[ai];
+                    }
+                    if (!txt) {
+                        // 備用：遍歷 window 上剛被設定的 v_ 開頭變量
+                        Object.keys(window).forEach(function (k) {
+                            if (k.indexOf('v_') === 0 && k.length > 2) {
+                                var v = window[k];
+                                if (typeof v === 'string' && v.indexOf('~') > 0) txt += v + ';';
+                                try { delete window[k]; } catch (e3) { window[k] = undefined; }
+                            }
+                        });
+                    }
+                    parseTencentTxt(txt, out);
+                    resolve(Object.keys(out).length > 0);
+                } catch (e2) { resolve(false); }
+                finally { try { delete window[cbName]; } catch (e3) { window[cbName] = undefined; } }
+            };
+            var scr = document.createElement('script');
+            scr.src = url;
+            scr.onerror = function () {
+                resolve(false);
+                try { delete window[cbName]; } catch (e3) { window[cbName] = undefined; }
+            };
+            setTimeout(function () {
+                resolve(false);
+                scr.remove();
+            }, 8000);
+            (document.head || document.documentElement).appendChild(scr);
+            setTimeout(function () { try { scr.remove(); } catch (e3) {} }, 10000);
+        });
+    }
+
+    /** 解析騰訊回傳文本（fetch 與 JSONP 共用） */
+    function parseTencentTxt(txt, out) {
+        var got = 0;
+        if (!txt) return false;
+        txt.split(';').forEach(function (line) {
+            var m = line.match(/v_([A-Za-z0-9_]+)="([^"]*)"/);
+            if (!m) return;
+            var arr = m[2].split('~');
+            var price = parseFloat(arr[3]);
+            var chg = parseFloat(arr[4]);
+            if (!isFinite(price) || price <= 0) return;
+            out[m[1]] = { price: price, prevClose: isFinite(chg) ? (price - chg) : price };
+            got++;
+        });
+        return got > 0;
+    }
+    /* ---------- 備援報價來源：東方財富（日經 225 等，亦開放 CORS） ---------- */
+    async function fetchEastmoney(secids) {
+        const out = {};
+        if (!secids || !secids.length) return out;
+        try {
+            const ctrl = new AbortController();
+            const to = setTimeout(function () { ctrl.abort(); }, 9000);
+            const r = await fetch('https://push2.eastmoney.com/api/qt/ulist.np/get?fields=f1,f2,f3,f4,f12&secids='
+                + secids.join(',') + '&_=' + Date.now(), { signal: ctrl.signal, cache: 'no-store' });
+            clearTimeout(to);
+            if (!r.ok) return out;
+            const j = await r.json();
+            const diff = j && j.data && j.data.diff;
+            if (!diff) return out;
+            diff.forEach(function (d) {
+                const sc = Math.pow(10, (d.f1 == null ? 2 : d.f1));
+                const price = d.f2 / sc, chg = d.f4 / sc;
+                if (!isFinite(price) || price <= 0) return;
+                out[d.f12] = { price: price, prevClose: price - chg };
+            });
+        } catch (e) {}
+        return out;
+    }
+    // 最後備援：Yahoo（不開放 CORS，須經免費代理；代理常不穩，只在上面兩個源失敗時才用）
+    const PROXIES = [
+        function (u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
+        function (u) { return 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u); },
+        function (u) { return 'https://thingproxy.freeboard.io/fetch/' + u; },
+        function (u) { return 'https://corsproxy.io/?url=' + encodeURIComponent(u); }
+    ];
+    async function fetchOne(sym) {
+        const yahoo = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(sym);
+        for (let p = 0; p < PROXIES.length; p++) {
+            try {
+                const ctrl = new AbortController();
+                const to = setTimeout(function () { ctrl.abort(); }, 9000);
+                const r = await fetch(PROXIES[p](yahoo), { signal: ctrl.signal });
+                clearTimeout(to);
+                if (!r.ok) continue;
+                const txt = await r.text();
+                const j = JSON.parse(txt);
+                const m = j && j.chart && j.chart.result && j.chart.result[0] && j.chart.result[0].meta;
+                if (!m) continue;
+                const price = m.regularMarketPrice;
+                const prev = m.chartPreviousClose || m.previousClose;
+                if (price == null) continue;
+                return { price: price, prevClose: prev };
+            } catch (e) { /* 試下一個代理 */ }
+        }
+        return null;
+    }
+    function loadLiveCache() {
+        try {
+            const ls = JSON.parse(localStorage.getItem(LIVE_KEY) || '{}');
+            Object.keys(ls).forEach(function (c) { if (!LIVE[c]) LIVE[c] = ls[c]; });
+        } catch (e) {}
+        const emb = (window.DAILY && window.DAILY.livePrices) || {};
+        Object.keys(emb).forEach(function (c) { if (!LIVE[c]) LIVE[c] = emb[c]; });
+    }
+    /* ---------- 頂部主要指數（恒指／美股／日股） ---------- */
+    const IDX_KEY = 'retire_idx_v1';
+    const IDX = {};
+    const INDEX_GROUPS = [
+        {
+            label: '港股',
+            items: [
+                { key: 'hsi', tx: 's_hkHSI', sym: '^HSI', name: '恒生指數 HSI' },
+                { key: 'hsce', tx: 's_hkHSCEI', sym: '^HSCE', name: '國企指數 HSCEI' },
+                { key: 'hstech', tx: 's_hkHSTECH', sym: 'HSTECH.HK', name: '恒生科技指數' }
+            ]
+        },
+        {
+            label: '美股',
+            items: [
+                { key: 'dji', tx: 's_usDJI', sym: '^DJI', name: '道瓊斯工業 DJIA' },
+                { key: 'gspc', tx: 's_usINX', sym: '^GSPC', name: '標普 500' },
+                { key: 'ixic', tx: 's_usIXIC', sym: '^IXIC', name: '納斯達克綜合' }
+            ]
+        },
+        {
+            label: '日股',
+            items: [
+                { key: 'n225', em: '100.N225', sym: '^N225', name: '日經 225' }
+            ]
+        }
+    ];
+    /* ========== 嵌入數據優先架構 ==========
+     * daily-data.js 由本地 Node 腳本／自動化更新，內含最新價格。
+     * 瀏覽器載入後立即顯示嵌入值（不依賴任何外部 API）。
+     * 然後背景嘗試即時抓取：成功則更新顯示；失敗不影響用戶看到正確數據。
+     * 這樣即使網絡擋掉所有行情源，用戶仍能看到最近一次更新的準確價格。
+     * ===================================== */
+
+    /** 計算嵌入數據的新鮮度 */
+    function getFreshnessInfo() {
+        var d = window.DAILY && window.DAILY.date;
+        if (!d) return { label: '—', cls: 'stale', mins: 99999 };
+        var dt;
+        // 支持格式 "2026-07-31" 或 "2026-07-31 15:30"
+        if (d.indexOf(' ') > 0) {
+            dt = new Date(d.replace(' ', 'T'));
+        } else {
+            dt = new Date(d + 'T23:59:59');
+        }
+        if (isNaN(dt.getTime())) return { label: '—', cls: 'stale', mins: 99999 };
+        var mins = (Date.now() - dt.getTime()) / 60000;
+        if (mins < 60) return { label: '🟢 ' + Math.round(mins) + ' 分鐘前更新', cls: 'fresh', mins: mins };
+        if (mins < 480) return { label: '🟡 ' + Math.round(mins / 60) + ' 小時前更新', cls: 'moderate', mins: mins };
+        return { label: '🔴 ' + Math.round(mins / 24) + ' 天前更新', cls: 'stale', mins: mins };
+    }
+
+    function loadEmbeddedData() {
+        // 1) 指數：從 daily-data.js 的 indexQuotes 載入（主源）
+        var emb = (window.DAILY && window.DAILY.indexQuotes) || {};
+        Object.keys(emb).forEach(function (k) {
+            if (emb[k] && emb[k].price != null) IDX[k] = emb[k];
+        });
+        // 2) 個股：從 daily-data.js 的 livePrices 載入（主源）
+        var lp = (window.DAILY && window.DAILY.livePrices) || {};
+        Object.keys(lp).forEach(function (c) {
+            if (lp[c] && lp[c].price != null) LIVE[c] = lp[c];
+        });
+        // 3) localStorage 作第三層（跨 session 保留）
+        try {
+            var lsIdx = JSON.parse(localStorage.getItem(IDX_KEY) || '{}');
+            Object.keys(lsIdx).forEach(function (k) { if (!IDX[k]) IDX[k] = lsIdx[k]; });
+            var lsLive = JSON.parse(localStorage.getItem(LIVE_KEY) || '{}');
+            Object.keys(lsLive).forEach(function (c) { if (!LIVE[c]) LIVE[c] = lsLive[c]; });
+        } catch (e) {}
+    }
+    /* 舊名兼容 */
+    function loadIdxCache() { loadEmbeddedData(); }
+    function loadLiveCache() { loadEmbeddedData(); }
+    function fmtIdx(v) {
+        if (v == null) return '—';
+        return Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function renderIndexBar() {
+        let html = '';
+        INDEX_GROUPS.forEach(function (g) {
+            html += '<div class="idx-group"><div class="idx-group-label">' + g.label + '</div><div class="idx-grid">';
+            g.items.forEach(function (it) {
+                const d = IDX[it.key];
+                if (!d || d.price == null) {
+                    html += '<div class="idx-card na"><div class="idx-name">' + it.name + '</div>'
+                        + '<div class="idx-val">—</div><div class="idx-chg small">載入中／未能取得</div></div>';
+                    return;
+                }
+                const chg = d.prevClose ? (d.price - d.prevClose) : 0;
+                const pct = d.prevClose ? (chg / d.prevClose * 100) : 0;
+                const up = chg >= 0;
+                const cls = up ? 'up' : 'dn';
+                const ccls = up ? 'chg-up' : 'chg-dn';
+                const sign = up ? '+' : '';
+                html += '<div class="idx-card ' + cls + '">'
+                    + '<div class="idx-name">' + it.name + '</div>'
+                    + '<div class="idx-val">' + fmtIdx(d.price) + '</div>'
+                    + '<div class="idx-chg ' + ccls + '">' + sign + fmtIdx(chg) + '（' + sign + pct.toFixed(2) + '%）</div>'
+                    + (d.asof ? '<div class="idx-asof">' + d.asof + (d.source === 'live' ? ' 即時' : ' 嵌入') + '</div>' : '')
+                    + '</div>';
+            });
+            html += '</div></div>';
+        });
+        const box = document.getElementById('idx-content');
+        if (box) box.innerHTML = html;
+    }
+    async function fetchIndexQuotes() {
+        var st = document.getElementById('idx-status');
+        // === 第一步：立即顯示嵌入數據（不依賴任何外部 API）===
+        loadEmbeddedData();
+        var fi = getFreshnessInfo();
+        renderIndexBar();
+        if (st) {
+            st.textContent = '📊 數據來源：本地更新腳本 ｜ ' + fi.label;
+            st.className = 'idx-freshness ' + fi.cls;
+        }
+
+        // === 第二步：背景嘗試即時抓取（增強，不阻塞顯示）===
+        var list = [];
+        INDEX_GROUPS.forEach(function (g) { g.items.forEach(function (it) { list.push(it); }); });
+        var stamp = new Date().toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit' });
+        var sources = [];
+        var ok = 0;
+
+        // 嘗試騰訊
+        var txRes = await fetchTencent(list.filter(function (it) { return it.tx; }).map(function (it) { return it.tx; }));
+        // 嘗試東方財富
+        var emIds = list.filter(function (it) { return it.em; }).map(function (it) { return it.em; });
+        var emRes = emIds.length ? await fetchEastmoney(emIds) : {};
+        list.forEach(function (it) {
+            var r = (it.tx && txRes[it.tx]) || (it.em && emRes[it.em.split('.')[1]]);
+            if (r) { IDX[it.key] = { price: r.price, prevClose: r.prevClose, asof: stamp, source: 'live' }; ok++; }
+        });
+        if (Object.keys(txRes).length) sources.push('騰訊');
+        if (Object.keys(emRes).length) sources.push('東方財富');
+
+        // Yahoo 代理補漏
+        var missing = list.filter(function (it) { return !IDX[it.key] || IDX[it.key].source !== 'live'; });
+        if (missing.length) {
+            for (var i = 0; i < missing.length; i++) {
+                var res = await fetchOne(missing[i].sym);
+                if (res) { IDX[missing[i].key] = { price: res.price, prevClose: res.prevClose, asof: stamp, source: 'live' }; ok++; sources.push('Yahoo'); }
+            }
+        }
+
+        // === 第三步：如果有即時數據，更新顯示 ===
+        if (ok > 0) {
+            try { localStorage.setItem(IDX_KEY, JSON.stringify(IDX)); } catch (e) {}
+            renderIndexBar();
+            if (st) {
+                if (ok >= list.length * 0.7) {
+                    st.textContent = '✅ 即時更新於 ' + stamp + '（' + ok + '/' + list.length + '，來源：' + sources.join('／') + '）';
+                } else if (ok > 0) {
+                    st.textContent = '⚠️ 即時取得 ' + ok + '/' + list.length + ' 項（' + stamp + '），其餘用嵌入數據';
+                }
+                st.className = 'idx-freshness live-ok';
+            }
+        }
+        // 如果完全沒有即時數據，保持顯示嵌入值（上面已設好）
+    }
+
+    async function fetchLivePrices() {
+        var status = document.getElementById('live-price-status');
+        // === 第一步：立即顯示嵌入數據 ===
+        loadEmbeddedData();
+        updateLivePriceUI();
+        applyLiveToHoldings();
+        var fi = getFreshnessInfo();
+        if (status) {
+            status.textContent = '📊 顯示嵌��價格（' + fi.label + '）｜背景嘗試即時更新…';
+            status.className = 'live-freshness ' + fi.cls;
+        }
+
+        // === 第二步：背景嘗試即時抓取 ===
+        var codes = {};
+        (window.DAILY.stockRows || []).forEach(function (r) { codes[normCode(r.code)] = true; });
+        holdings.forEach(function (h) { var k = normCode(h.code); if (k) codes[k] = true; });
+        var syms = [];
+        var txMap = {};
+        Object.keys(codes).forEach(function (k) {
+            if (!/^\d+$/.test(k)) return;
+            txMap['s_r_hk' + String(Number(k)).padStart(5, '0')] = k;
+            var s = yahooSym(k);
+            if (s) syms.push({ code: k, sym: s });
+        });
+        var ok = 0;
+        var fresh = {};
+        var sources = [];
+
+        // 騰訊
+        var txRes = await fetchTencent(Object.keys(txMap));
+        Object.keys(txRes).forEach(function (s) {
+            var c = txMap[s];
+            if (c) { LIVE[c] = txRes[s]; fresh[c] = true; ok++; }
+        });
+        if (ok > 0) sources.push('騰訊');
+
+        // Yahoo 代理補��
+        var missing = syms.filter(function (it) { return !fresh[it.code]; });
+        if (missing.length) {
+            for (var i = 0; i < missing.length; i++) {
+                var res = await fetchOne(missing[i].sym);
+                if (res) { LIVE[missing[i].code] = res; ok++; sources.push('Yahoo'); }
+            }
+        }
+
+        // === 第三步：有即時數據則更新顯示 ===
+        if (ok > 0) {
+            try { localStorage.setItem(LIVE_KEY, JSON.stringify(LIVE)); } catch (e) {}
+            updateLivePriceUI();
+            applyLiveToHoldings();
+            var t = new Date().toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit' });
+            if (status) {
+                if (ok >= syms.length * 0.7) {
+                    status.textContent = '✅ 即時更新於 ' + t + '（' + ok + '/' + syms.length + ' 隻，來源：' + sources.join('／') + '）';
+                } else if (ok > 0) {
+                    status.textContent = '⚠️ 即時取得 ' + ok + '/' + syms.length + ' 隻（' + t + '），其餘用嵌入值';
+                } else {
+                    status.textContent = '📊 即時源不可用，顯示嵌入價格（' + fi.label + '）';
+                }
+                status.className = 'live-freshness ' + (ok > 0 ? 'live-ok' : fi.cls);
+            }
+        }
+    }
+    function updateLivePriceUI() {
+        (window.DAILY.stockRows || []).forEach(function (r) {
+            var el = document.getElementById('live-' + normCode(r.code));
+            if (!el) return;
+            var d = LIVE[normCode(r.code)];
+            if (!d || d.price == null) { el.innerHTML = '現價：<span class="small">未能載入</span>'; return; }
+            var chg = d.price - d.prevClose;
+            var pct = d.prevClose ? (chg / d.prevClose * 100) : 0;
+            var cls = chg >= 0 ? 'chg-up' : 'chg-dn';
+            var sign = chg >= 0 ? '+' : '';
+            var srcTag = d.source === 'live' ? '' : '<span class="small" style="color:#888;">（嵌入）</span>';
+            el.innerHTML = '現價：<b>HK$' + fmt(d.price) + '</b> <span class="' + cls + '">' + sign + fmt(chg) + ' (' + sign + pct.toFixed(2) + '%)</span>' + srcTag;
+        });
+    }
+    function applyLiveToHoldings() {
+        const rows = document.querySelectorAll('#hold-body tr');
+        holdings.forEach(function (h, i) {
+            const key = normCode(h.code);
+            const d = LIVE[key];
+            if (!d || d.price == null) return;
+            if (num(h.price) <= 0) {
+                h.price = d.price;
+                const row = rows[i];
+                if (row) { const inp = row.querySelectorAll('input')[4]; if (inp) inp.value = d.price; }
+                recompute();
+            }
+        });
     }
 
     /* ---------- holdings ---------- */
@@ -799,30 +1902,21 @@
     loadHoldings();
     renderHoldings();
     renderDaily();
+    loadIdxCache();
+    renderIndexBar();
+    fetchIndexQuotes();
+    fetchLivePrices();
+    // 隨時隨地自動更新價格：每 2 分鐘重抓一次，切回頁面時也重抓（免費、不耗配額）
+    setInterval(function () { try { fetchLivePrices(); } catch (e) {} }, 120000);
+    // 頂部指數：每 60 秒自動刷新
+    setInterval(function () { try { fetchIndexQuotes(); } catch (e) {} }, 60000);
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') {
+            try { fetchIndexQuotes(); } catch (e) {}
+            try { fetchLivePrices(); } catch (e) {}
+        }
+    });
 </script>
-<script>
-    // PWA：註冊 Service Worker，並在偵測到新版本時顯示刷新提示
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function () {
-            navigator.serviceWorker.register('./service-worker.js').then(function (reg) {
-                if (reg && reg.addEventListener) {
-                    reg.addEventListener('updatefound', function () {
-                        const installing = reg.installing;
-                        if (installing) installing.addEventListener('statechange', function () {
-                            if (installing.state === 'installed' && navigator.serviceWorker.controller) {
-                                const b = document.getElementById('update-banner');
-                                if (b) { b.style.display = 'block'; b.onclick = function () { location.reload(); }; }
-                            }
-                        });
-                    });
-                }
-            }).catch(function () {});
-        });
-        let refreshing = false;
-        navigator.serviceWorker.addEventListener('controllerchange', function () {
-            if (!refreshing) { refreshing = true; location.reload(); }
-        });
-    }
-</script>
+
 </body>
 </html>
