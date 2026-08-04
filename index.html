@@ -331,7 +331,69 @@
             <!-- 價格追蹤 -->
             <h3 style="margin:18px 0 10px; color:#1e3c72;">💰 MPF 基金價格追蹤（每日 16:00 自動更新）</h3>
             <table id="mpf-price-table"><thead><tr><th>基金代碼</th><th>名稱</th><th>最新單位價格（港元）</th><th>截至</th><th>類型／風險</th></tr></thead><tbody id="mpf-price-rows"></tbody></table>
-            <p class="small" style="margin-top:8px;">說明：SHK126（宏利環球精選香港股票基金）與 SHK145（恒指ESG基金）均為 100% 港股股票基金，價格隨恒指波動。每日 16:00 自動抓取最新公布的官方單位價格（資料源：經濟通 ET Wealth；宏利官網封鎖伺服器抓取）。<b>強積金單位價格本身有 T+2／T+3 公布延遲</b>，故「截至」日期通常落後今日 2–4 個工作日，屬正常，非數據未更新。</p>
+            <p class="small" style="margin-top:8px;">說明：<b>SHK126／SHK145 是你現時持有的兩隻</b>，均為 100% 港股股票基金，價格隨恒指波動；<b>DIS-CAF（核心累積）與 DIS-A65F（65歲後）是預設投資策略的兩隻成分基金</b>，你未持有，此處列出作轉倉比較之用（詳見下方 DIS 評估）。每日 16:00 自動抓取最新公布的官方單位價格（資料源：經濟通 ET Wealth；宏利官網封鎖伺服器抓取）。<b>強積金單位價格本身有 T+2／T+3 公布延遲</b>，故「截至」日期通常落後今日 2–4 個工作日，屬正常，非數據未更新。</p>
+
+            <!-- DIS 預設投資策略評估 -->
+            <div class="mpf-section" style="margin-top:18px; border-left:4px solid #b8860b; background:#fffaf0; padding:14px 16px; border-radius:8px;">
+                <h3 style="margin-bottom:8px; color:#8a6d1f;">🎯 DIS 預設投資策略：你是否應該轉？</h3>
+
+                <p style="line-height:1.8; margin-bottom:10px;">
+                    <b>DIS（Default Investment Strategy，預設投資策略）</b>是強積金法定的「懶人方案」，由兩隻基金組成：
+                    <b>核心累積基金（CAF）</b>約 60% 環球股票 + 40% 環球債券，以及
+                    <b>65歲後基金（A65F）</b>約 20% 股票 + 80% 債券。
+                    兩隻均為<b>環球分散</b>，而非單一市場。
+                </p>
+
+                <div style="background:#fff4d6; border-radius:6px; padding:10px 12px; margin:10px 0;">
+                    <b style="color:#8a6d1f;">⏰ 關鍵時機：你今年 50 歲，正好是 DIS 自動去風險的起跑線。</b>
+                    <p class="small" style="margin-top:6px; line-height:1.7;">
+                        DIS 機制規定：50 歲之前 100% 持有 CAF；<b>由 50 歲生日起，每年自動把約 6.7% 由 CAF 轉入 A65F</b>，
+                        到 64 歲完成，屆時 100% 持有 A65F。即是說你現在轉入，剛好由「進取端」開始，
+                        之後 15 年由系統自動、免費、逐年降風險，完全不用你自己判斷時機。
+                    </p>
+                </div>
+
+                <h4 style="margin:14px 0 8px; color:#2c3e50;">📊 你現持 vs DIS：硬數據對比</h4>
+                <table id="dis-compare-table">
+                    <thead><tr><th>項目</th><th>你現持（SHK126 80% + SHK145 20%）</th><th>DIS 核心累積 CAF</th><th>DIS 65歲後 A65F</th></tr></thead>
+                    <tbody id="dis-compare-rows"></tbody>
+                </table>
+
+                <h4 style="margin:14px 0 8px; color:#2c3e50;">💡 我的建議：<span style="color:#c0392b;">值得轉，但不建議全轉</span></h4>
+                <div id="dis-advice" style="line-height:1.85;">
+                    <p><b>1. 為何值得轉一部分 —— 你現在的問題不是「揀錯基金」，是「風險重複」。</b>
+                    你 MPF 兩隻基金都是 100% 港股，而你場外自選股（941、1038、5、939、2638、3988、700、9988 等）同樣重倉港股。
+                    即是說<b>退休金和自選倉押注同一個市場、同一批藍籌</b>。港股一跌，兩邊同時失血，沒有任何緩衝。
+                    CAF 的 60% 環球股票以美股為主，正好補回你組合中最缺的一塊。</p>
+
+                    <p style="margin-top:10px;"><b>2. 費用差距是確定的收益。</b>
+                    DIS 有<b>法定收費上限：管理費 0.75%/年 + 經常性開支 0.2%，合共封頂 0.95%</b>。
+                    而你持有的 SHK126 開支比率 1.78%，接近上限的兩倍。以你現時 80/20 配置計，加權費用約 <b>1.61%</b>。
+                    轉入 DIS 每年可省約 <b>0.7 個百分點</b>——這是不論市場升跌都能鎖定的回報，
+                    在 15 年複利下，等於總結餘多出約一成。</p>
+
+                    <p style="margin-top:10px;"><b>3. 但為何不建議 100% 轉。</b>
+                    港股現時估值仍低、股息率高，是你「高股息現金流」策略的核心來源；
+                    而 CAF 現價 18.84 已處於 52 週區間的 <b>86% 高位</b>（區間 16.80–19.16），此刻全額轉入等於高位接貨。
+                    另外 A65F 八成債券，長期預期回報偏低，50 歲就大比例持有會過度保守，
+                    你距離 65 歲尚有 15 年，仍需要一定增長動力抵禦通脹。</p>
+
+                    <div style="background:#eef4fb; border-left:3px solid #3567b7; padding:10px 12px; border-radius:6px; margin-top:12px;">
+                        <b style="color:#1e3c72;">✅ 具體執行建議（同計劃內轉換免費，可分批做）</b>
+                        <ul style="margin:8px 0 0 18px; line-height:1.8;">
+                            <li><b>目標配置：DIS 核心累積 CAF 50–60%，保留港股基金 20–25%（只留 SHK145，開支比率 0.92% 較平），其餘 20–25% 轉入債券／保守基金。</b></li>
+                            <li><b>先減最貴那隻</b>：SHK126 開支比率 1.78% 卻與 SHK145 高度重疊，優先由 80% 降至 0–20%。</li>
+                            <li><b>分 3 批、每 2–3 個月一次</b>，避免在 CAF 的 52 週高位一次過全額買入；若恒指急跌反而可暫緩，因為那時港股部分不宜低位賣出。</li>
+                            <li><b>新供款先行</b>：最簡單的起步是把「未來每月新供款」直接改為 CAF，存量結餘慢慢轉——這樣完全不用擇時，也不會賣在低位。</li>
+                        </ul>
+                    </div>
+
+                    <p class="small" style="margin-top:10px; opacity:.85;">
+                        ⚠️ 注意：一旦你主動選擇了基金組合，就不會再自動套用 DIS 的逐年去風險機制（除非你正式選擇「DIS」作為投資指示）。
+                        若你想要「完全自動、零操作」，可直接向宏利指明採用 DIS；若你想保留港股彈性，就用上面的手動混合配置，但需自己每隔 2–3 年檢視一次比例。
+                    </p>
+                </div>
+            </div>
 
             <!-- Profile 評估 -->
             <div class="mpf-section" style="margin-top:18px;">
@@ -449,7 +511,7 @@
 <script>
 window.DAILY = {
   "date": "2026-08-04",
-  "marketSummary": "2026-07-30 盤前：美股 7/29 顯著回檔，道指 -2.2%、標指 -1.5%、納指 -1.7%，費城半導體 -5%；主因中東局勢升級推升油價（紐約期油 +6.6%）及美聯儲維持利率不變卻釋鷹派信號（3 名委員主張加息，30 年美債收益率升至 5.20% 創 19 年高）。港股逆勢強：7/29 恒指收升 2.0% 報 25,807 升穿 250 天線，7/30 騰訊、港交所破頂帶動大市再創近一年高；但個股分化，中芯 -7.74%、阿里 -1.58%。現貨金約 4,020 美元/盎司，低位反彈。中國政治局會議月底舉行，市場憧憬逆周期政策。",
+  "marketSummary": "<b>2026-08-04 更新</b>：港股 恒指 -0.60%、恒生科技 +0.21%；美股 道指 +1.32%、標普 +1.48%、納指 +2.13%；商品 現貨金 US$4104.1（+0.33%）、現貨銀 US$58.89（+1.79%）、WTI 原油 US$81.49。整體 避險情緒偏重。<br><span style=\"opacity:.85;\">今日焦點：美联储政策传导混乱引发公信力危机 华尔街警告美国市场不确定性剧增｜高市早苗推行财政刺激有望提振经济增长，但日本付息负担本已持续攀升｜高市早苗的财政刺激举措或提振经济增长，但也将推高日本本已不断攀升的利息支出。</span><br><span style=\"opacity:.85;\">對你（50 歲穩健型・退休儲備）的含義：高股息核心倉續作現金流主力，成長倉控比例，黃金維持防守配置；MPF 過度集中港股仍是最大單一風險。</span>",
   "marketNote": "市場數值為 2026-08-04 收盤資訊整理，每日 16:05 自動更新；漲＝紅、跌＝綠（中國香港市場慣例）。",
   "marketCards": [
     {
@@ -509,26 +571,36 @@ window.DAILY = {
   "metalCards": [
     {
       "name": "現貨黃金",
-      "value": "US$4104.8",
+      "value": "US$4104.1",
       "cls": "pos"
     },
     {
       "name": "現貨白銀",
-      "value": "US$58.98",
+      "value": "US$58.89",
       "cls": "neg"
     },
     {
       "name": "金銀比",
-      "value": "US$58.98",
+      "value": "US$58.89",
       "cls": "neutral"
     },
     {
       "name": "人民幣金價",
-      "value": "US$4104.8",
+      "value": "US$4104.1",
       "cls": "neutral"
     }
   ],
   "newsRows": [
+    {
+      "theme": "利率/流動性",
+      "news": "美联储政策传导混乱引发公信力危机 华尔街警告美国市场不确定性剧增",
+      "impact": "流動性趨鬆，支撐風險資產"
+    },
+    {
+      "theme": "中國發展",
+      "news": "高市早苗推行财政刺激有望提振经济增长，但日本付息负担本已持续攀升",
+      "impact": "短線偏強，利好相關持倉"
+    },
     {
       "theme": "中國發展",
       "news": "高市早苗的财政刺激举措或提振经济增长，但也将推高日本本已不断攀升的利息支出",
@@ -548,16 +620,6 @@ window.DAILY = {
       "theme": "美股科技",
       "news": "被苹果起诉窃取商业机密！OpenAI称对方搞错了",
       "impact": "影響成長倉(9988/700/3690等)，控制比例"
-    },
-    {
-      "theme": "利率/流動性",
-      "news": "央行将开展5000亿元买断式逆回购操作",
-      "impact": "流動性趨鬆，支撐風險資產"
-    },
-    {
-      "theme": "能源商品",
-      "news": "受中东冲突推高油价影响 英国石油公司二季度净利润大幅增长",
-      "impact": "留意對組合影響"
     }
   ],
   "influenceRows": [
@@ -573,12 +635,12 @@ window.DAILY = {
     },
     {
       "asset": "黃金",
-      "view": "現貨金 +0.35%（US$4104.8），避險與通脹擔憂支撐。",
+      "view": "現貨金 +0.33%（US$4104.1），避險與通脹擔憂支撐。",
       "action": "目標 8%–12%；不足分批補，優先低成本 ETF(3081/2840/3170)。"
     },
     {
       "asset": "白銀",
-      "view": "白銀 +1.93%（US$58.98），工業屬性強、波動大於黃金。",
+      "view": "白銀 +1.79%（US$58.89），工業屬性強、波動大於黃金。",
       "action": "僅小比例觀察，不替代黃金。"
     },
     {
@@ -797,7 +859,7 @@ window.DAILY = {
       "logic": "僅退休年期仍超過 10 年且能承受波動時保留小比例。"
     }
   ],
-  "mpfUpdate": "2026-07-30 更新：你 MPF 現為 100% 港股股票（SHK126 80% + SHK145 20%）。最新價：SHK126 24.824（截至 28/07，較前日 -0.74%）、SHK145 15.140（+0.23%）。集中度偏高、與私人港股倉重疊，建議參考下方 Profile 評估，分 2–3 次把 SHK126 降至 20%、SHK145 降至 0%，釋出資金轉入核心累積基金（SHK148）、65歲後基金（SHK149）、香港債券基金（SHK132）。月供股票方面，保留 2800/941/1038 為核心，1378 降權，3110 納入高股息月供，981 優先減。",
+  "mpfUpdate": "<b>2026-08-04 更新</b>：你 MPF 現為 100% 港股股票（SHK126 80% + SHK145 20%）。最新官方單位價：SHK126 25.150（截至 2026/07/30）、SHK145 15.440（截至 2026/07/30）。<br>DIS 預設投資策略參考價：核心累積基金 CAF 18.840（年初至今 +5.80%）、65歲後基金 A65F 12.340（年初至今 +1.19%）。<br>集中度警示：兩隻在持基金同為 100% 港股，等同 MPF 全倉押注單一市場，與你場外已重倉港股疊加，風險高度重複。",
   "mpfNote": "MPF 重點不是單年最高回報，而是避免退休前遇到大回撤時被迫賣出。建議每半年檢查股債比例，市場大漲後自動把股票比例降回目標區間。",
   "frameworkRows": [
     {
@@ -878,7 +940,8 @@ window.DAILY = {
       "price": "25.150",
       "asof": "2026/07/30",
       "cls": "pos",
-      "note": "100% 港股股票；較上個報價日 +1.31%；52週 22.91–27.13；年初至今 +2.34%；官方報價延遲 5 日"
+      "note": "100% 港股股票／高風險；較上個報價日 +1.31%；52週 22.91–27.13；年初至今 +2.34%；官方報價延遲 5 日",
+      "held": true
     },
     {
       "code": "SHK145",
@@ -886,7 +949,26 @@ window.DAILY = {
       "price": "15.440",
       "asof": "2026/07/30",
       "cls": "pos",
-      "note": "100% 港股股票；較上個報價日 +1.98%；52週 13.55–16.78；年初至今 -0.41%；官方報價延遲 5 日"
+      "note": "100% 港股股票／高風險；較上個報價日 +1.98%；52週 13.55–16.78；年初至今 -0.41%；官方報價延遲 5 日",
+      "held": true
+    },
+    {
+      "code": "DIS-CAF",
+      "name": "宏利MPF核心累積基金（DIS）",
+      "price": "18.840",
+      "asof": "2026/07/30",
+      "cls": "neutral",
+      "note": "你未持有（DIS 可轉入）；約60%環球股票+40%債券／中風險；52週 16.8–19.16；年初至今 +5.80%；官方報價延遲 5 日",
+      "held": false
+    },
+    {
+      "code": "DIS-A65F",
+      "name": "宏利MPF 65歲後基金（DIS）",
+      "price": "12.340",
+      "asof": "2026/07/30",
+      "cls": "neutral",
+      "note": "你未持有（DIS 可轉入）；約20%環球股票+80%債券／低風險；52週 11.91–12.47；年初至今 +1.19%；官方報價延遲 5 日",
+      "held": false
     }
   ],
   "mpfProfile": {
@@ -918,8 +1000,8 @@ window.DAILY = {
     "alternative": "若不想自己調整股債比例，可改用計劃內「目標退休基金」系列（SHK140 2025／SHK141 2030／SHK142 2035 等），會按距離退休年齡自動降低股票比例；50 歲對應約 SHK141/142。或採 DIS 預設投資策略但手動把權益比例壓低。",
     "action": "建議分 2–3 次（例如每 3–6 個月一次）把 SHK126 由 80% 降至 20%、SHK145 降至 0%，釋出資金轉入 SHK148（40%）、SHK149（25%）、SHK132（15%）。同計劃內轉換免費，不必一次過做，可趁市場反彈、港股比例偏高時執行，減少在低位被迫賣出。"
   },
-  "oneLiner": "本地腳本 2026-08-04 自動更新：恒指 -0.60%、現貨金 +0.35%；個股即時價與買賣信號已刷新（規則型，非 AI）。",
-  "footerNote": "新聞與產品說明基於 2026-07-30 公開網頁資訊整理，來源包括信達國際、AAStocks、金融界、騰訊新聞、網易等。個股即時價格由瀏覽器透過 Yahoo Finance 直接抓取（免費、每次開啟自動更新）。港股漲跌顏色按中國香港市場慣例：漲為紅，跌為綠。本儀表盤用於組合框架與風險管理參考，不構成個人化證券投資建議。",
+  "oneLiner": "本地腳本 2026-08-04 自動更新：恒指 -0.60%、現貨金 +0.33%；個股即時價與買賣信號已刷新（規則型，非 AI）。",
+  "footerNote": "新聞由新浪財經滾動快訊每日自動抓取（最後更新 2026-08-04）；MPF 單位價來自經濟通 ET Wealth（官方報價有 T+2／T+3 延遲）；指數與個股報價來自騰訊財經、東方財富、Yahoo Finance。港股漲跌顏色按中國香港市場慣例：漲為紅，跌為綠。本頁僅供參考，不構成投資建議。",
   "livePrices": {
     "3": {
       "price": 6.905,
@@ -1053,7 +1135,68 @@ window.DAILY = {
       "prevClose": 63754.9,
       "asof": "2026-08-04"
     }
-  }
+  },
+  "disCompare": [
+    {
+      "metric": "資產類別",
+      "held": "100% 港股股票（單一市場）",
+      "caf": "約 60% 環球股票 + 40% 環球債券",
+      "a65": "約 20% 環球股票 + 80% 環球債券",
+      "heldCls": "neg"
+    },
+    {
+      "metric": "最新單位價",
+      "held": "SHK126 25.150／SHK145 15.440",
+      "caf": "HK$18.840",
+      "a65": "HK$12.340"
+    },
+    {
+      "metric": "52 週波幅（風險代理）",
+      "held": "19.5%（加權）",
+      "caf": "14.0%",
+      "a65": "4.7%",
+      "heldCls": "neg",
+      "a65Cls": "pos",
+      "highlight": true
+    },
+    {
+      "metric": "現價處於 52 週區間位置",
+      "held": "SHK126 53%／SHK145 59%",
+      "caf": "86%（偏高位）",
+      "a65": "77%"
+    },
+    {
+      "metric": "年初至今",
+      "held": "+2.34%／-0.41%",
+      "caf": "+5.80%",
+      "a65": "+1.19%"
+    },
+    {
+      "metric": "基金開支比率",
+      "held": "加權約 1.61%",
+      "caf": "受 DIS 法定上限保護（管理費 ≤0.75% + 開支 ≤0.2%）",
+      "a65": "同受 DIS 法定上限保護",
+      "heldCls": "neg",
+      "cafCls": "pos",
+      "a65Cls": "pos",
+      "highlight": true
+    },
+    {
+      "metric": "自動去風險機制",
+      "held": "無，需自己判斷時機",
+      "caf": "有：50→64 歲每年自動轉約 6.7% 入 A65F",
+      "a65": "有：接收 CAF 逐年轉入",
+      "cafCls": "pos"
+    },
+    {
+      "metric": "與你場外港股倉的重疊度",
+      "held": "極高（風險重複）",
+      "caf": "低（環球分散，補回美股缺口）",
+      "a65": "很低（以債券為主）",
+      "heldCls": "neg",
+      "cafCls": "pos"
+    }
+  ]
 };
 
 </script>
@@ -1114,6 +1257,7 @@ window.DAILY = {
         fillRows('monthly-rows', d.monthlyRows || [], ['code', 'plan', 'update']);
         fillMpfCards(d.mpfRows || []);
         renderMpfFundPrices(d.mpfFundPrices || []);
+        renderDisCompare(d.disCompare || []);
         renderMpfProfile(d.mpfProfile || null);
         fillFramework(d.frameworkRows || []);
         buildActionSummary(d);
@@ -1224,7 +1368,26 @@ window.DAILY = {
         tb.innerHTML = '';
         rows.forEach(function (r) {
             const tr = document.createElement('tr');
-            tr.innerHTML = '<td><b>' + r.code + '</b></td><td>' + r.name + '</td><td class="' + (r.cls || 'neutral') + '">' + r.price + '</td><td>' + (r.asof || '') + '</td><td class="small">' + (r.note || '') + '</td>';
+            const isDis = r.held === false;
+            if (isDis) tr.style.background = '#f7f9fc';
+            const tag = isDis
+                ? '<span style="display:inline-block;margin-left:6px;padding:1px 6px;border-radius:8px;background:#dfe9f7;color:#1e3c72;font-size:11px;">DIS 參考</span>'
+                : '<span style="display:inline-block;margin-left:6px;padding:1px 6px;border-radius:8px;background:#fde8e8;color:#c0392b;font-size:11px;">持有中</span>';
+            tr.innerHTML = '<td><b>' + r.code + '</b>' + tag + '</td><td>' + r.name + '</td><td class="' + (r.cls || 'neutral') + '">' + r.price + '</td><td>' + (r.asof || '') + '</td><td class="small">' + (r.note || '') + '</td>';
+            tb.appendChild(tr);
+        });
+    }
+    function renderDisCompare(rows) {
+        const tb = document.getElementById('dis-compare-rows');
+        if (!tb || !rows || !rows.length) return;
+        tb.innerHTML = '';
+        rows.forEach(function (r) {
+            const tr = document.createElement('tr');
+            if (r.highlight) tr.style.background = '#fff4d6';
+            tr.innerHTML = '<td><b>' + r.metric + '</b></td>'
+                + '<td class="' + (r.heldCls || '') + '">' + r.held + '</td>'
+                + '<td class="' + (r.cafCls || '') + '">' + r.caf + '</td>'
+                + '<td class="' + (r.a65Cls || '') + '">' + r.a65 + '</td>';
             tb.appendChild(tr);
         });
     }
