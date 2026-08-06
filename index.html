@@ -115,8 +115,8 @@
         .kpi-value { font-size: 1.7em; font-weight: 700; }
         .kpi-sub { font-size: 0.8em; opacity: 0.85; margin-top: 6px; }
 
-        /* tables */
-        table { width: 100%; border-collapse: collapse; font-size: 0.92em; }
+        /* tables：全部設為可橫向捲動容器，避免任何寬表格被 container 裁切（手機/PWA 都適用） */
+        table { width: 100%; border-collapse: collapse; font-size: 0.92em; display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         th, td { border-bottom: 1px solid #e4e9f2; padding: 10px 9px; vertical-align: top; text-align: left; }
         th { color: #5b6b80; font-weight: 600; background: #f5f7fb; }
 
@@ -235,8 +235,8 @@
             .stock-rec-grid { grid-template-columns: 1fr; }
             .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .mpf-grid { grid-template-columns: 1fr; }
-            /* 寬表格改為可橫向捲動，避免細芒爆版 / 被 container 裁切 */
-            table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; font-size: 0.85em; }
+            /* 寬表格橫向捲動（基底已設，細芒只調字距與唔換行，掃得到所有欄） */
+            table { font-size: 0.85em; }
             th, td { white-space: nowrap; padding: 8px; }
             /* 加大觸控目標；輸入框用 16px 防 iOS 聚焦自動縮放 */
             .btn { padding: 10px 16px; font-size: 0.95em; min-height: 40px; }
@@ -578,7 +578,7 @@
 <script>
 window.DAILY = {
   "date": "2026-08-06",
-  "marketSummary": "<b>2026-08-06 更新</b>：港股 恒指 -1.49%、恒生科技 -2.28%；美股 道指 +0.49%、標普 -0.17%、納指 -0.83%；商品 現貨金 US$4333.0（+0.65%）、現貨銀 US$62.11（-0.29%）、WTI 原油 US$75.42。整體 方向未明、板塊分化。<br><span style=\"opacity:.85;\">今日焦點：交易员聚焦利率前景，美国短期国债收益率小幅上行｜MiniMax纳入港股通，大涨超17%！九龙仓一度逆市狂飙近32%！｜腾信精密IPO：监管多次问询下变更会计处理 股份支付曾少计提1亿元 募投项目用地减少近20%。</span><br><span style=\"opacity:.85;\">對你（50 歲穩健型・退休儲備）的含義：高股息核心倉續作現金流主力，成長倉控比例，黃金維持防守配置；MPF 過度集中港股仍是最大單一風險。</span>",
+  "marketSummary": "<b>2026-08-06 更新</b>：港股 恒指 -1.49%、恒生科技 -2.28%；美股 道指 +0.49%、標普 -0.17%、納指 -0.83%；商品 現貨金 US$4329.2（+0.56%）、現貨銀 US$62.06（-0.36%）、WTI 原油 US$75.28。整體 方向未明、板塊分化。<br><span style=\"opacity:.85;\">今日焦點：尊界V800/V680上市：百万级MPV市场，第一次有了中国答案｜交易员聚焦利率前景，美国短期国债收益率小幅上行｜MiniMax纳入港股通，大涨超17%！九龙仓一度逆市狂飙近32%！。</span><br><span style=\"opacity:.85;\">對你（50 歲穩健型・退休儲備）的含義：高股息核心倉續作現金流主力，成長倉控比例，黃金維持防守配置；MPF 過度集中港股仍是最大單一風險。</span>",
   "marketNote": "市場數值為 2026-08-06 收盤資訊整理，每日 16:05 自動更新；漲＝紅、跌＝綠（中國香港市場慣例）。",
   "marketCards": [
     {
@@ -638,26 +638,31 @@ window.DAILY = {
   "metalCards": [
     {
       "name": "現貨黃金",
-      "value": "US$4333.0",
+      "value": "US$4329.2",
       "cls": "pos"
     },
     {
       "name": "現貨白銀",
-      "value": "US$62.11",
+      "value": "US$62.06",
       "cls": "neg"
     },
     {
       "name": "金銀比",
-      "value": "US$62.11",
+      "value": "US$62.06",
       "cls": "neutral"
     },
     {
       "name": "人民幣金價",
-      "value": "US$4333.0",
+      "value": "US$4329.2",
       "cls": "neutral"
     }
   ],
   "newsRows": [
+    {
+      "theme": "中國發展",
+      "news": "尊界V800/V680上市：百万级MPV市场，第一次有了中国答案",
+      "impact": "影響中國相關持倉，買現金流確定性"
+    },
     {
       "theme": "利率/流動性",
       "news": "交易员聚焦利率前景，美国短期国债收益率小幅上行",
@@ -670,23 +675,18 @@ window.DAILY = {
     },
     {
       "theme": "市場焦點",
-      "news": "腾信精密IPO：监管多次问询下变更会计处理 股份支付曾少计提1亿元 募投项目用地减少近20%",
+      "news": "“银行试点午休1.5小时”引热议，网友吐槽：你上班时我也上班，我休息时你也休息，多方发声",
       "impact": "留意對組合影響"
     },
     {
       "theme": "市場焦點",
-      "news": "Switch 2硬件销量下滑，任天堂财季营收与净利润仍超出市场预期",
-      "impact": "留意對組合影響"
+      "news": "AI算力电站之争持续升温，卡纳拟推出《数据中心权利法案》",
+      "impact": "短線偏強，利好相關持倉"
     },
     {
       "theme": "市場焦點",
-      "news": "首开股份聚焦城市更新赛道 “增量开发+存量更新+多元转型”驱动增长",
-      "impact": "留意對組合影響"
-    },
-    {
-      "theme": "市場焦點",
-      "news": "张一鸣发声后，梁汝波再谈“字节做大模型”：大语言模型接受短期落后，坚持优化长期",
-      "impact": "留意對組合影響"
+      "news": "欧诺科技IPO：应收账款增速远超同行 期后回款率大幅“滑坡” 研发人员年均薪酬仅为销售人员的6成",
+      "impact": "影響成長倉(9988/700/3690等)，控制比例"
     }
   ],
   "influenceRows": [
@@ -702,17 +702,17 @@ window.DAILY = {
     },
     {
       "asset": "黃金",
-      "view": "現貨金 +0.65%（US$4333.0），避險與通脹擔憂支撐。",
+      "view": "現貨金 +0.56%（US$4329.2），避險與通脹擔憂支撐。",
       "action": "目標 8%–12%；不足分批補，優先低成本 ETF(3081/2840/3170)。"
     },
     {
       "asset": "白銀",
-      "view": "白銀 -0.29%（US$62.11），工業屬性強、波動大於黃金。",
+      "view": "白銀 -0.36%（US$62.06），工業屬性強、波動大於黃金。",
       "action": "僅小比例觀察，不替代黃金。"
     },
     {
       "asset": "中國發展",
-      "view": "降稅/流動性預期仍撐估值；地產與外圍制裁是反向變數。",
+      "view": "政策與流動性消息主導風險溢價；地產與外圍制裁是反向變數，科技監管與產業政策影響成長倉。",
       "action": "買現金流確定性，少買純政策想像。"
     }
   ],
@@ -1067,7 +1067,7 @@ window.DAILY = {
     "alternative": "若不想自己調整股債比例，可改用計劃內「目標退休基金」系列（SHK140 2025／SHK141 2030／SHK142 2035 等），會按距離退休年齡自動降低股票比例；50 歲對應約 SHK141/142。或採 DIS 預設投資策略但手動把權益比例壓低。",
     "action": "建議分 2–3 次（例如每 3–6 個月一次）把 SHK126 由 80% 降至 20%、SHK145 降至 0%，釋出資金轉入 SHK148（40%）、SHK149（25%）、SHK132（15%）。同計劃內轉換免費，不必一次過做，可趁市場反彈、港股比例偏高時執行，減少在低位被迫賣出。"
   },
-  "oneLiner": "本地腳本 2026-08-06 自動更新：恒指 -1.49%、現貨金 +0.65%；個股即時價與買賣信號已刷新（規則型，非 AI）。",
+  "oneLiner": "本地腳本 2026-08-06 自動更新：恒指 -1.49%、現貨金 +0.56%；個股即時價與買賣信號已刷新（規則型，非 AI）。",
   "footerNote": "新聞由新浪財經滾動快訊每日自動抓取（最後更新 2026-08-06）；MPF 單位價來自經濟通 ET Wealth（官方報價有 T+2／T+3 延遲）；指數與個股報價來自騰訊財經、東方財富、Yahoo Finance。港股漲跌顏色按中國香港市場慣例：漲為紅，跌為綠。本頁僅供參考，不構成投資建議。",
   "livePrices": {
     "3": {
