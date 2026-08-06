@@ -1,8 +1,7 @@
-const CACHE = 'retire-dash-v1';
+const CACHE = 'retire-dash-v6';
 const SHELL = [
   './',
   './index.html',
-  './daily-data.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -26,21 +25,15 @@ self.addEventListener('activate', function (e) {
 self.addEventListener('fetch', function (e) {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
-
-  // 每日數據：網絡優先，確保手機端總是拿到最新部署版本；離線時回退快取
-  if (url.pathname.endsWith('daily-data.js')) {
-    e.respondWith(
-      fetch(e.request).then(function (res) {
-        const copy = res.clone();
-        caches.open(CACHE).then(function (c) { c.put(e.request, copy); });
-        return res;
-      }).catch(function () { return caches.match(e.request); })
-    );
-    return;
-  }
-
-  // 其餘資源：快取優先，離線也可讀
+  // 只攔截同域資源：網絡優先，離線才回退快取，確保隨時拿到最新 index.html
+  if (url.origin !== location.origin) return; // 跨域（Yahoo / CORS 代理）交給瀏覽器自行處理
   e.respondWith(
-    caches.match(e.request).then(function (r) { return r || fetch(e.request); })
+    fetch(e.request).then(function (res) {
+      const copy = res.clone();
+      caches.open(CACHE).then(function (c) { c.put(e.request, copy); });
+      return res;
+    }).catch(function () {
+      return caches.match(e.request).then(function (r) { return r || caches.match('./index.html'); });
+    })
   );
 });
