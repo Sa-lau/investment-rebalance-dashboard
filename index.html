@@ -175,6 +175,23 @@
         .stock-live b { font-size: 1.05em; }
         .live-bar { display: flex; align-items: center; gap: 10px; margin: 6px 0 14px; flex-wrap: wrap; }
         #live-price-status { font-size: 0.85em; color: #5b6b80; }
+        /* 即時快訊 */
+        #live-news-status { font-size: 0.85em; color: #5b6b80; }
+        .lnw-tabs { display: flex; gap: 8px; margin: 10px 0 4px; flex-wrap: wrap; }
+        .lnw-tab { padding: 5px 14px; border-radius: 16px; border: 1px solid #c8d4e6; background: #fff; color: #35507a; cursor: pointer; font-size: 0.85em; }
+        .lnw-tab.on { background: #1e3c72; color: #fff; border-color: #1e3c72; }
+        .lnw-list { max-height: 460px; overflow-y: auto; border: 1px solid #e3e9f2; border-radius: 8px; padding: 4px 10px; background: #fbfcfe; }
+        .lnw-item { padding: 10px 4px; border-bottom: 1px dashed #e0e6ef; }
+        .lnw-item:last-child { border-bottom: none; }
+        .lnw-meta { font-size: 0.78em; color: #8a97a8; margin-bottom: 3px; }
+        .lnw-src { display: inline-block; padding: 1px 7px; border-radius: 9px; background: #eef3fb; color: #35507a; margin-right: 6px; }
+        .lnw-src.wscn { background: #fdf0e6; color: #a2582a; }
+        .lnw-title { font-weight: 600; color: #22314a; font-size: 0.95em; line-height: 1.5; }
+        .lnw-title a { color: inherit; text-decoration: none; }
+        .lnw-title a:hover { color: #1e3c72; text-decoration: underline; }
+        .lnw-sum { font-size: 0.87em; color: #5a6779; line-height: 1.6; margin-top: 3px; }
+        .lnw-hit { color: #c62828; font-weight: 700; }
+        .lnw-item.rel { background: #fff7f7; border-left: 3px solid #e57373; padding-left: 8px; }
 
         /* 頂部指數列 */
         .idx-section { background: #fff; border: 1px solid #e3e9f2; border-radius: 14px; padding: 16px 18px 14px; margin-bottom: 22px; box-shadow: 0 2px 10px rgba(30,60,114,0.06); }
@@ -279,9 +296,24 @@
             <p class="small" id="market-note"></p>
         </div>
 
+        <!-- 即時財經快訊（瀏覽器直抓，refresh 即最新） -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">⚡</span>即時財經快訊（每次刷新都係最新）</h2>
+            <div class="live-bar">
+                <button class="btn btn-primary" onclick="fetchLiveNews(true)">🔄 立即抓取最新</button>
+                <span id="live-news-status">載入中…</span>
+            </div>
+            <div class="lnw-tabs">
+                <div class="lnw-tab on" id="lnw-tab-rel" onclick="setNewsTab('rel')">🎯 同我持倉相關</div>
+                <div class="lnw-tab" id="lnw-tab-all" onclick="setNewsTab('all')">📰 全部快訊</div>
+            </div>
+            <div class="lnw-list" id="live-news-list"></div>
+            <p class="small" style="margin-top:10px;">來源：東方財富 7×24 快訊 ＋ 華爾街見聞全球快訊（兩者都開放跨域，瀏覽器直連，唔靠本地腳本）。標紅字眼＝命中你持倉／關注主題。頁面停留時每 5 分鐘自動再抓一次。</p>
+        </div>
+
         <!-- 今日重點新聞 -->
         <div class="section">
-            <h2 class="section-title"><span class="icon">📰</span>今日重點新聞與市場影響</h2>
+            <h2 class="section-title"><span class="icon">📰</span>今日重點新聞與市場影響<span class="small" style="font-weight:400;">（每日腳本抓取＋人手分析，非即時）</span></h2>
             <p id="market-summary" class="small"></p>
             <ul class="news-list" id="news-rows"></ul>
             <h3 style="margin:18px 0 10px; color:#1e3c72;">市場影響判斷</h3>
@@ -504,58 +536,58 @@
 
     <div class="footer">
         <p>© 2026 個人投資組合再平衡儀表盤 ｜ 僅供參考，不構成投資建議</p>
-        <p style="margin-top:8px; opacity:0.8;">持倉資料僅存於你的瀏覽器本機 ｜ 每日 16:00 自動更新新聞與趨勢（至 2026-08-05）</p>
+        <p style="margin-top:8px; opacity:0.8;">持倉資料僅存於你的瀏覽器本機 ｜ ⚡ 即時快訊與報價：每次開頁／刷新都會重新抓取（新聞每 5 分鐘、報價每 2 分鐘自動更新） ｜ 📰 「今日重點新聞與市場影響」的深度分析由每日 16:05 本機排程更新</p>
     </div>
 </div>
 
 <script>
 window.DAILY = {
-  "date": "2026-08-04",
-  "marketSummary": "<b>2026-08-04 更新</b>：港股 恒指 -0.60%、恒生科技 +0.21%；美股 道指 +1.32%、標普 +1.48%、納指 +2.13%；商品 現貨金 US$4104.0（+0.33%）、現貨銀 US$58.88（+1.78%）、WTI 原油 US$81.60。整體 港美走勢背馳（港股偏弱、美股偏強），資金向外圍傾斜。<br><span style=\"opacity:.85;\">今日焦點：美联储政策传导混乱引发公信力危机 华尔街警告美国市场不确定性剧增｜高市早苗推行财政刺激有望提振经济增长，但日本付息负担本已持续攀升｜高市早苗的财政刺激举措或提振经济增长，但也将推高日本本已不断攀升的利息支出。</span><br><span style=\"opacity:.85;\">對你（50 歲穩健型・退休儲備）的含義：高股息核心倉續作現金流主力，成長倉控比例，黃金維持防守配置；MPF 過度集中港股仍是最大單一風險。</span>",
-  "marketNote": "市場數值為 2026-08-04 收盤資訊整理，每日 16:05 自動更新；漲＝紅、跌＝綠（中國香港市場慣例）。",
+  "date": "2026-08-06",
+  "marketSummary": "<b>2026-08-06 更新</b>：港股 恒指 -1.49%、恒生科技 -2.28%；美股 道指 +0.49%、標普 -0.17%、納指 -0.83%；商品 現貨金 US$4340.9（+0.83%）、現貨銀 US$62.24（-0.07%）、WTI 原油 US$75.46。整體 方向未明、板塊分化。<br><span style=\"opacity:.85;\">今日焦點：突然大跌！香港保险股怎么了？｜GTC泽汇资本:高金价推动矿业收入增长｜中阿（根廷）两国央行续签双边本币互换协议。</span><br><span style=\"opacity:.85;\">對你（50 歲穩健型・退休儲備）的含義：高股息核心倉續作現金流主力，成長倉控比例，黃金維持防守配置；MPF 過度集中港股仍是最大單一風險。</span>",
+  "marketNote": "市場數值為 2026-08-06 收盤資訊整理，每日 16:05 自動更新；漲＝紅、跌＝綠（中國香港市場慣例）。",
   "marketCards": [
     {
-      "title": "🇺🇸 美股（2026-08-04 收盤）",
+      "title": "🇺🇸 美股（2026-08-06 收盤）",
       "items": [
         {
           "name": "道瓊斯指數",
-          "value": "+1.32%",
+          "value": "+0.49%",
           "cls": "pos"
         },
         {
           "name": "標普500",
-          "value": "+1.48%",
-          "cls": "pos"
+          "value": "-0.17%",
+          "cls": "neg"
         },
         {
           "name": "納斯達克",
-          "value": "+2.13%",
-          "cls": "pos"
+          "value": "-0.83%",
+          "cls": "neg"
         }
       ]
     },
     {
-      "title": "🇭🇰 港股（2026-08-04）",
+      "title": "🇭🇰 港股（2026-08-06）",
       "items": [
         {
           "name": "恒生指數",
-          "value": "-0.60%",
+          "value": "-1.49%",
           "cls": "neg"
         },
         {
           "name": "騰訊700",
-          "value": "-0.57%",
+          "value": "-2.64%",
           "cls": "neg"
         },
         {
           "name": "中芯981",
-          "value": "+4.98%",
-          "cls": "pos"
+          "value": "-3.90%",
+          "cls": "neg"
         },
         {
           "name": "阿里9988",
-          "value": "+0.48%",
-          "cls": "pos"
+          "value": "-2.89%",
+          "cls": "neg"
         }
       ]
     },
@@ -571,76 +603,76 @@ window.DAILY = {
   "metalCards": [
     {
       "name": "現貨黃金",
-      "value": "US$4104.0",
+      "value": "US$4340.9",
       "cls": "pos"
     },
     {
       "name": "現貨白銀",
-      "value": "US$58.88",
+      "value": "US$62.24",
       "cls": "neg"
     },
     {
       "name": "金銀比",
-      "value": "US$58.88",
+      "value": "US$62.24",
       "cls": "neutral"
     },
     {
       "name": "人民幣金價",
-      "value": "US$4104.0",
+      "value": "US$4340.9",
       "cls": "neutral"
     }
   ],
   "newsRows": [
     {
+      "theme": "港股動態",
+      "news": "突然大跌！香港保险股怎么了？",
+      "impact": "短線承壓，防守為主"
+    },
+    {
+      "theme": "貴金屬",
+      "news": "GTC泽汇资本:高金价推动矿业收入增长",
+      "impact": "影響黃金/白銀配置，留意避險需求"
+    },
+    {
       "theme": "利率/流動性",
-      "news": "美联储政策传导混乱引发公信力危机 华尔街警告美国市场不确定性剧增",
+      "news": "中阿（根廷）两国央行续签双边本币互换协议",
       "impact": "流動性趨鬆，支撐風險資產"
     },
     {
-      "theme": "中國發展",
-      "news": "高市早苗推行财政刺激有望提振经济增长，但日本付息负担本已持续攀升",
-      "impact": "短線偏強，利好相關持倉"
-    },
-    {
-      "theme": "中國發展",
-      "news": "高市早苗的财政刺激举措或提振经济增长，但也将推高日本本已不断攀升的利息支出",
-      "impact": "短線偏強，利好相關持倉"
-    },
-    {
-      "theme": "能源商品",
-      "news": "特朗普警告：谈判是结束战争的最后机会 德黑兰否认开展磋商，油价上行",
-      "impact": "留意對組合影響"
-    },
-    {
-      "theme": "能源商品",
-      "news": "受伊朗战事挤压原油供应，沙特阿美二季度利润大涨33%",
-      "impact": "短線偏強，利好相關持倉"
+      "theme": "貴金屬",
+      "news": "Mega安汇:高金价下矿企现金流受考验",
+      "impact": "影響黃金/白銀配置，留意避險需求"
     },
     {
       "theme": "美股科技",
-      "news": "被苹果起诉窃取商业机密！OpenAI称对方搞错了",
+      "news": "OpenAI请求法院驳回苹果公司诉讼 称其借助窃密官司应对人才流失",
       "impact": "影響成長倉(9988/700/3690等)，控制比例"
+    },
+    {
+      "theme": "美股科技",
+      "news": "美股AI概念股回调拖累亚洲科技股，SK海力士大跌10%",
+      "impact": "短線承壓，防守為主"
     }
   ],
   "influenceRows": [
     {
       "asset": "港股",
-      "view": "恒指今日 -0.60%（偏弱），牛皮偏穩、個股分化；高股息核心(941/1038/5/939/3988/2800)仍穩。",
+      "view": "恒指今日 -1.49%（偏弱），短線偏弱、觀望為主；高股息核心(941/1038/5/939/3988/2800)仍穩。",
       "action": "月供繼續；優先高股息核心，成長衛星(9988/700/3690/1810/981)控制倉位。"
     },
     {
       "asset": "美股",
-      "view": "標普500今日 +1.48%（風險偏好回升），利率與地緣仍是主線。",
+      "view": "標普500今日 -0.17%（高位徘徊、方向未明），利率與地緣仍是主線。",
       "action": "不追逐高估值科技；已有成長倉持有但不加碼。"
     },
     {
       "asset": "黃金",
-      "view": "現貨金 +0.33%（US$4104.0），避險與通脹擔憂支撐。",
+      "view": "現貨金 +0.83%（US$4340.9），避險與通脹擔憂支撐。",
       "action": "目標 8%–12%；不足分批補，優先低成本 ETF(3081/2840/3170)。"
     },
     {
       "asset": "白銀",
-      "view": "白銀 +1.78%（US$58.88），工業屬性強、波動大於黃金。",
+      "view": "白銀 -0.07%（US$62.24），工業屬性強、波動大於黃金。",
       "action": "僅小比例觀察，不替代黃金。"
     },
     {
@@ -653,7 +685,7 @@ window.DAILY = {
     {
       "code": "3",
       "name": "香港中華煤氣",
-      "signal": "今日 -0.79%（較前收）；高股息防守底倉，走勢平穩",
+      "signal": "今日 -0.66%（較前收）；高股息防守底倉，走勢平穩",
       "alignment": "一致",
       "action": "繼續月供／持有",
       "cls": "buy",
@@ -662,7 +694,7 @@ window.DAILY = {
     {
       "code": "5",
       "name": "滙豐控股",
-      "signal": "今日 -1.01%（較前收）；高股息防守底倉，走勢平穩",
+      "signal": "今日 -1.23%（較前收）；高股息防守底倉，走勢平穩",
       "alignment": "一致",
       "action": "繼續月供／持有",
       "cls": "buy",
@@ -671,7 +703,7 @@ window.DAILY = {
     {
       "code": "12",
       "name": "恒基地產",
-      "signal": "今日 -0.43%（較前收）；周期/半導體波動，維持減倉觀望",
+      "signal": "今日 -2.76%（較前收）；周期/半導體回落，減倉節奏可放慢",
       "alignment": "偏高（目標壓縮）",
       "action": "減倉／分批減",
       "cls": "sell",
@@ -680,7 +712,7 @@ window.DAILY = {
     {
       "code": "700",
       "name": "騰訊控股",
-      "signal": "今日 -0.57%（較前收）；科技/互聯網橫行觀望",
+      "signal": "今日 -2.64%（較前收）；科技/互聯網短線承壓，宜分批低吸",
       "alignment": "一致（成長衛星）",
       "action": "持有／控制倉位",
       "cls": "hold",
@@ -689,16 +721,16 @@ window.DAILY = {
     {
       "code": "939",
       "name": "建設銀行",
-      "signal": "今日 -3.37%（較前收）；高股息/公用防守回調，提供低吸機會",
+      "signal": "今日 +0.68%（較前收）；高股息防守底倉，走勢平穩",
       "alignment": "一致",
-      "action": "繼續月供／趁回調加",
+      "action": "繼續月供／持有",
       "cls": "buy",
       "reason": "股息與估值仍適合退休組合，但不追單日強勢。"
     },
     {
       "code": "941",
       "name": "中國移動",
-      "signal": "今日 -1.32%（較前收）；高股息防守底倉，走勢平穩",
+      "signal": "今日 -0.36%（較前收）；高股息防守底倉，走勢平穩",
       "alignment": "一致（目標高股息核心）",
       "action": "繼續月供／持有",
       "cls": "buy",
@@ -707,16 +739,16 @@ window.DAILY = {
     {
       "code": "981",
       "name": "中芯國際",
-      "signal": "今日 +4.98%（較前收）；周期/半導體反彈，宜趁高減倉",
+      "signal": "今日 -3.90%（較前收）；周期/半導體回落，減倉節奏可放慢",
       "alignment": "偏高（目標僅 5%）",
-      "action": "減倉／趁反彈減",
+      "action": "減倉／分批減",
       "cls": "sell",
       "reason": "受地緣、估值、周期三重影響，不適合穩健退休主倉。"
     },
     {
       "code": "1038",
       "name": "長江基建",
-      "signal": "今日 -0.32%（較前收）；高股息防守底倉，走勢平穩",
+      "signal": "今日 -0.73%（較前收）；高股息防守底倉，走勢平穩",
       "alignment": "一致",
       "action": "繼續月供／持有",
       "cls": "buy",
@@ -725,16 +757,16 @@ window.DAILY = {
     {
       "code": "1378",
       "name": "中國宏橋",
-      "signal": "今日 +2.35%（較前收）；周期/半導體反彈，宜趁高減倉",
+      "signal": "今日 -2.00%（較前收）；周期/半導體回落，減倉節奏可放慢",
       "alignment": "偏高（目標僅 4%）",
-      "action": "減倉／趁反彈減",
+      "action": "減倉／分批減",
       "cls": "sell",
       "reason": "鋁價與能源敏感，不適合作退休現金流主倉；轉為戰術小倉。"
     },
     {
       "code": "1810",
       "name": "小米集團-W",
-      "signal": "今日 +0.00%（較前收）；科技/互聯網橫行觀望",
+      "signal": "今日 -2.82%（較前收）；科技/互聯網短線承壓，宜分批低吸",
       "alignment": "一致（衛星）",
       "action": "持有／控制倉位",
       "cls": "hold",
@@ -743,7 +775,7 @@ window.DAILY = {
     {
       "code": "2638",
       "name": "港燈-SS",
-      "signal": "今日 -1.38%（較前收）；高股息防守底倉，走勢平穩",
+      "signal": "今日 +0.62%（較前收）；高股息防守底倉，走勢平穩",
       "alignment": "一致",
       "action": "繼續月供／持有",
       "cls": "buy",
@@ -752,7 +784,7 @@ window.DAILY = {
     {
       "code": "2800",
       "name": "盈富基金",
-      "signal": "今日 -0.53%（較前收）；高股息防守底倉，走勢平穩",
+      "signal": "今日 -1.52%（較前收）；高股息/公用防守回調，提供低吸機會",
       "alignment": "一致（目標寬基核心）",
       "action": "繼續月供／持有",
       "cls": "buy",
@@ -761,7 +793,7 @@ window.DAILY = {
     {
       "code": "3110",
       "name": "GX恒生股息",
-      "signal": "今日 -0.95%（較前收）；高股息防守底倉，走勢平穩",
+      "signal": "今日 -0.96%（較前收）；高股息防守底倉，走勢平穩",
       "alignment": "一致（優先）",
       "action": "繼續月供／持有",
       "cls": "buy",
@@ -770,7 +802,7 @@ window.DAILY = {
     {
       "code": "3690",
       "name": "美團-W",
-      "signal": "今日 -0.80%（較前收）；科技/互聯網橫行觀望",
+      "signal": "今日 -0.91%（較前收）；科技/互聯網橫行觀望",
       "alignment": "一致（成長衛星）",
       "action": "持有／控制倉位",
       "cls": "hold",
@@ -779,16 +811,16 @@ window.DAILY = {
     {
       "code": "3988",
       "name": "中國銀行",
-      "signal": "今日 -2.73%（較前收）；高股息/公用防守回調，提供低吸機會",
+      "signal": "今日 +0.19%（較前收）；高股息防守底倉，走勢平穩",
       "alignment": "一致",
-      "action": "繼續月供／趁回調加",
+      "action": "繼續月供／持有",
       "cls": "buy",
       "reason": "適合作銀行高息分散。"
     },
     {
       "code": "9988",
       "name": "阿里巴巴-W",
-      "signal": "今日 +0.48%（較前收）；科技/互聯網橫行觀望",
+      "signal": "今日 -2.89%（較前收）；科技/互聯網短線承壓，宜分批低吸",
       "alignment": "一致（成長衛星）",
       "action": "持有／控制倉位",
       "cls": "hold",
@@ -859,7 +891,7 @@ window.DAILY = {
       "logic": "僅退休年期仍超過 10 年且能承受波動時保留小比例。"
     }
   ],
-  "mpfUpdate": "<b>2026-08-04 更新</b>：你 MPF 現為 100% 港股股票（SHK126 80% + SHK145 20%）。最新官方單位價：SHK126 25.150（截至 2026/07/30）、SHK145 15.440（截至 2026/07/30）。<br>DIS 預設投資策略參考價：核心累積基金 CAF 18.840（年初至今 +5.80%）、65歲後基金 A65F 12.340（年初至今 +1.19%）。<br>集中度警示：兩隻在持基金同為 100% 港股，等同 MPF 全倉押注單一市場，與你場外已重倉港股疊加，風險高度重複。",
+  "mpfUpdate": "<b>2026-08-06 更新</b>：你 MPF 現為 100% 港股股票（SHK126 80% + SHK145 20%）。最新官方單位價：SHK126 25.480（截至 2026/08/03）、SHK145 15.660（截至 2026/08/03）。<br>DIS 預設投資策略參考價：核心累積基金 CAF 19.080（年初至今 +7.15%）、65歲後基金 A65F 12.400（年初至今 +1.62%）。<br>集中度警示：兩隻在持基金同為 100% 港股，等同 MPF 全倉押注單一市場，與你場外已重倉港股疊加，風險高度重複。",
   "mpfNote": "MPF 重點不是單年最高回報，而是避免退休前遇到大回撤時被迫賣出。建議每半年檢查股債比例，市場大漲後自動把股票比例降回目標區間。",
   "frameworkRows": [
     {
@@ -937,37 +969,37 @@ window.DAILY = {
     {
       "code": "SHK126",
       "name": "宏利MPF香港股票基金",
-      "price": "25.150",
-      "asof": "2026/07/30",
+      "price": "25.480",
+      "asof": "2026/08/03",
       "cls": "pos",
-      "note": "100% 港股股票／高風險；較上個報價日 +1.31%；52週 22.91–27.13；年初至今 +2.34%；官方報價延遲 5 日",
+      "note": "100% 港股股票／高風險；較上個報價日 +1.31%；52週 23.14–27.13；年初至今 +3.65%；官方報價延遲 3 日",
       "held": true
     },
     {
       "code": "SHK145",
       "name": "宏利MPF恒指ESG基金",
-      "price": "15.440",
-      "asof": "2026/07/30",
+      "price": "15.660",
+      "asof": "2026/08/03",
       "cls": "pos",
-      "note": "100% 港股股票／高風險；較上個報價日 +1.98%；52週 13.55–16.78；年初至今 -0.41%；官方報價延遲 5 日",
+      "note": "100% 港股股票／高風險；較上個報價日 +1.42%；52週 13.55–16.78；年初至今 +1.06%；官方報價延遲 3 日",
       "held": true
     },
     {
       "code": "DIS-CAF",
       "name": "宏利MPF核心累積基金（DIS）",
-      "price": "18.840",
-      "asof": "2026/07/30",
-      "cls": "neutral",
-      "note": "你未持有（DIS 可轉入）；約60%環球股票+40%債券／中風險；52週 16.8–19.16；年初至今 +5.80%；官方報價延遲 5 日",
+      "price": "19.080",
+      "asof": "2026/08/03",
+      "cls": "pos",
+      "note": "你未持有（DIS 可轉入）；約60%環球股票+40%債券／中風險；較上個報價日 +1.27%；52週 16.92–19.16；年初至今 +7.15%；官方報價延遲 3 日",
       "held": false
     },
     {
       "code": "DIS-A65F",
       "name": "宏利MPF 65歲後基金（DIS）",
-      "price": "12.340",
-      "asof": "2026/07/30",
-      "cls": "neutral",
-      "note": "你未持有（DIS 可轉入）；約20%環球股票+80%債券／低風險；52週 11.91–12.47；年初至今 +1.19%；官方報價延遲 5 日",
+      "price": "12.400",
+      "asof": "2026/08/03",
+      "cls": "pos",
+      "note": "你未持有（DIS 可轉入）；約20%環球股票+80%債券／低風險；較上個報價日 +0.49%；52週 11.91–12.47；年初至今 +1.62%；官方報價延遲 3 日",
       "held": false
     }
   ],
@@ -1000,140 +1032,140 @@ window.DAILY = {
     "alternative": "若不想自己調整股債比例，可改用計劃內「目標退休基金」系列（SHK140 2025／SHK141 2030／SHK142 2035 等），會按距離退休年齡自動降低股票比例；50 歲對應約 SHK141/142。或採 DIS 預設投資策略但手動把權益比例壓低。",
     "action": "建議分 2–3 次（例如每 3–6 個月一次）把 SHK126 由 80% 降至 20%、SHK145 降至 0%，釋出資金轉入 SHK148（40%）、SHK149（25%）、SHK132（15%）。同計劃內轉換免費，不必一次過做，可趁市場反彈、港股比例偏高時執行，減少在低位被迫賣出。"
   },
-  "oneLiner": "本地腳本 2026-08-04 自動更新：恒指 -0.60%、現貨金 +0.33%；個股即時價與買賣信號已刷新（規則型，非 AI）。",
-  "footerNote": "新聞由新浪財經滾動快訊每日自動抓取（最後更新 2026-08-04）；MPF 單位價來自經濟通 ET Wealth（官方報價有 T+2／T+3 延遲）；指數與個股報價來自騰訊財經、東方財富、Yahoo Finance。港股漲跌顏色按中國香港市場慣例：漲為紅，跌為綠。本頁僅供參考，不構成投資建議。",
+  "oneLiner": "本地腳本 2026-08-06 自動更新：恒指 -1.49%、現貨金 +0.83%；個股即時價與買賣信號已刷新（規則型，非 AI）。",
+  "footerNote": "新聞由新浪財經滾動快訊每日自動抓取（最後更新 2026-08-06）；MPF 單位價來自經濟通 ET Wealth（官方報價有 T+2／T+3 延遲）；指數與個股報價來自騰訊財經、東方財富、Yahoo Finance。港股漲跌顏色按中國香港市場慣例：漲為紅，跌為綠。本頁僅供參考，不構成投資建議。",
   "livePrices": {
     "3": {
-      "price": 6.905,
-      "prevClose": 6.96,
-      "asof": "2026-08-04"
+      "price": 6.785,
+      "prevClose": 6.83,
+      "asof": "2026-08-06"
     },
     "5": {
-      "price": 166.5,
-      "prevClose": 168.2,
-      "asof": "2026-08-04"
+      "price": 160.1,
+      "prevClose": 162.1,
+      "asof": "2026-08-06"
     },
     "12": {
-      "price": 28.02,
-      "prevClose": 28.14,
-      "asof": "2026-08-04"
+      "price": 27.48,
+      "prevClose": 28.26,
+      "asof": "2026-08-06"
     },
     "700": {
-      "price": 487.6,
-      "prevClose": 490.40000000000003,
-      "asof": "2026-08-04"
+      "price": 479.2,
+      "prevClose": 492.2,
+      "asof": "2026-08-06"
     },
     "939": {
-      "price": 8.89,
-      "prevClose": 9.200000000000001,
-      "asof": "2026-08-04"
+      "price": 8.86,
+      "prevClose": 8.799999999999999,
+      "asof": "2026-08-06"
     },
     "941": {
-      "price": 82.5,
-      "prevClose": 83.6,
-      "asof": "2026-08-04"
+      "price": 82.4,
+      "prevClose": 82.7,
+      "asof": "2026-08-06"
     },
     "981": {
-      "price": 65.3,
-      "prevClose": 62.199999999999996,
-      "asof": "2026-08-04"
+      "price": 65.35,
+      "prevClose": 68,
+      "asof": "2026-08-06"
     },
     "1038": {
-      "price": 61.95,
-      "prevClose": 62.150000000000006,
-      "asof": "2026-08-04"
+      "price": 61.3,
+      "prevClose": 61.75,
+      "asof": "2026-08-06"
     },
     "1378": {
-      "price": 23.5,
-      "prevClose": 22.96,
-      "asof": "2026-08-04"
+      "price": 23.56,
+      "prevClose": 24.04,
+      "asof": "2026-08-06"
     },
     "1810": {
-      "price": 27.96,
-      "prevClose": 27.96,
-      "asof": "2026-08-04"
+      "price": 26.86,
+      "prevClose": 27.64,
+      "asof": "2026-08-06"
     },
     "2638": {
-      "price": 6.44,
-      "prevClose": 6.53,
-      "asof": "2026-08-04"
+      "price": 6.455,
+      "prevClose": 6.415,
+      "asof": "2026-08-06"
     },
     "2800": {
-      "price": 26.32,
-      "prevClose": 26.46,
-      "asof": "2026-08-04"
+      "price": 26,
+      "prevClose": 26.4,
+      "asof": "2026-08-06"
     },
     "2840": {
-      "price": 2940,
-      "prevClose": 2940,
-      "asof": "2026-08-04"
+      "price": 3066,
+      "prevClose": 3002,
+      "asof": "2026-08-06"
     },
     "3081": {
-      "price": 19.19,
-      "prevClose": 19.17,
-      "asof": "2026-08-04"
+      "price": 20.16,
+      "prevClose": 19.69,
+      "asof": "2026-08-06"
     },
     "3110": {
-      "price": 31.3,
-      "prevClose": 31.6,
-      "asof": "2026-08-04"
+      "price": 31.02,
+      "prevClose": 31.32,
+      "asof": "2026-08-06"
     },
     "3170": {
-      "price": 12.85,
-      "prevClose": 12.83,
-      "asof": "2026-08-04"
+      "price": 13.46,
+      "prevClose": 13.190000000000001,
+      "asof": "2026-08-06"
     },
     "3690": {
-      "price": 92.7,
-      "prevClose": 93.45,
-      "asof": "2026-08-04"
+      "price": 92.2,
+      "prevClose": 93.05,
+      "asof": "2026-08-06"
     },
     "3988": {
-      "price": 5.335,
-      "prevClose": 5.485,
-      "asof": "2026-08-04"
+      "price": 5.28,
+      "prevClose": 5.2700000000000005,
+      "asof": "2026-08-06"
     },
     "9988": {
-      "price": 125.8,
-      "prevClose": 125.2,
-      "asof": "2026-08-04"
+      "price": 124.4,
+      "prevClose": 128.1,
+      "asof": "2026-08-06"
     }
   },
   "indexQuotes": {
     "hsi": {
-      "price": 25852.92,
-      "prevClose": 26009.399999999998,
-      "asof": "2026-08-04"
+      "price": 25530.28,
+      "prevClose": 25915.82,
+      "asof": "2026-08-06"
     },
     "hsce": {
-      "price": 8574.26,
-      "prevClose": 8652.15,
-      "asof": "2026-08-04"
+      "price": 8498.73,
+      "prevClose": 8603.73,
+      "asof": "2026-08-06"
     },
     "hstech": {
-      "price": 4885.61,
-      "prevClose": 4875.61,
-      "asof": "2026-08-04"
+      "price": 4820.78,
+      "prevClose": 4933.07,
+      "asof": "2026-08-06"
     },
     "dji": {
-      "price": 53178.41,
-      "prevClose": 52485.030000000006,
-      "asof": "2026-08-04"
+      "price": 54349.12,
+      "prevClose": 54085.880000000005,
+      "asof": "2026-08-06"
     },
     "gspc": {
-      "price": 7600.5,
-      "prevClose": 7489.72,
-      "asof": "2026-08-04"
+      "price": 7723.55,
+      "prevClose": 7736.52,
+      "asof": "2026-08-06"
     },
     "ixic": {
-      "price": 25913.9,
-      "prevClose": 25373.850000000002,
-      "asof": "2026-08-04"
+      "price": 26363.44,
+      "prevClose": 26584.989999999998,
+      "asof": "2026-08-06"
     },
     "n225": {
-      "price": 63957.53,
-      "prevClose": 63754.9,
-      "asof": "2026-08-04"
+      "price": 65683.26,
+      "prevClose": 66300.43999999999,
+      "asof": "2026-08-06"
     }
   },
   "disCompare": [
@@ -1146,14 +1178,14 @@ window.DAILY = {
     },
     {
       "metric": "最新單位價",
-      "held": "SHK126 25.150／SHK145 15.440",
-      "caf": "HK$18.840",
-      "a65": "HK$12.340"
+      "held": "SHK126 25.480／SHK145 15.660",
+      "caf": "HK$19.080",
+      "a65": "HK$12.400"
     },
     {
       "metric": "52 週波幅（風險代理）",
-      "held": "19.5%（加權）",
-      "caf": "14.0%",
+      "held": "18.6%（加權）",
+      "caf": "13.2%",
       "a65": "4.7%",
       "heldCls": "neg",
       "a65Cls": "pos",
@@ -1161,15 +1193,15 @@ window.DAILY = {
     },
     {
       "metric": "現價處於 52 週區間位置",
-      "held": "SHK126 53%／SHK145 59%",
-      "caf": "86%（偏高位）",
-      "a65": "77%"
+      "held": "SHK126 59%／SHK145 65%",
+      "caf": "96%（偏高位）",
+      "a65": "87%"
     },
     {
       "metric": "年初至今",
-      "held": "+2.34%／-0.41%",
-      "caf": "+5.80%",
-      "a65": "+1.19%"
+      "held": "+3.65%／+1.06%",
+      "caf": "+7.15%",
+      "a65": "+1.62%"
     },
     {
       "metric": "基金開支比率",
@@ -1499,45 +1531,36 @@ window.DAILY = {
         } catch (e) { return false; }
     }
 
-    /** 第二層：JSONP <script> 標籤注入（瀏覽器永不快取動態 script） */
+    /** 第二層：<script> 標籤注入（瀏覽器永不快取動態 script）
+     *  注意：qt.gtimg.cn 並唔支援 cb= 回調參數，佢直接回傳 `v_hk00941="...";`
+     *  即係本身就係一段合法 JS——注入後會把 v_xxx 掛喺 window 上。
+     *  所以正確做法係：等 script onload，再掃 window 上新出現嘅 v_ 變量。 */
     function tryJsonpTencent(batch, out) {
         return new Promise(function (resolve) {
-            var cbName = '_txcb_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
-            var url = 'https://qt.gtimg.cn/q=' + batch.join(',') + '&cb=' + cbName + '&_j=' + Date.now();
-            window[cbName] = function () {
-                try {
-                    var txt = '';
-                    // 騰訊 JSONP 回調會把 v_xxx="..." 作為字符串參數傳入
-                    for (var ai = 0; ai < arguments.length; ai++) {
-                        if (typeof arguments[ai] === 'string') txt += arguments[ai];
-                    }
-                    if (!txt) {
-                        // 備用：遍歷 window 上剛被設定的 v_ 開頭變量
-                        Object.keys(window).forEach(function (k) {
-                            if (k.indexOf('v_') === 0 && k.length > 2) {
-                                var v = window[k];
-                                if (typeof v === 'string' && v.indexOf('~') > 0) txt += v + ';';
-                                try { delete window[k]; } catch (e3) { window[k] = undefined; }
-                            }
-                        });
-                    }
-                    parseTencentTxt(txt, out);
-                    resolve(Object.keys(out).length > 0);
-                } catch (e2) { resolve(false); }
-                finally { try { delete window[cbName]; } catch (e3) { window[cbName] = undefined; } }
-            };
+            var done = false;
             var scr = document.createElement('script');
+            var url = 'https://qt.gtimg.cn/q=' + batch.join(',') + '&_j=' + Date.now() + '_' + Math.floor(Math.random() * 9999);
+            function harvest() {
+                if (done) return; done = true;
+                var txt = '';
+                try {
+                    Object.keys(window).forEach(function (k) {
+                        if (k.indexOf('v_') === 0 && k.length > 2) {
+                            var v = window[k];
+                            if (typeof v === 'string' && v.indexOf('~') > 0) txt += 'v_' + k.slice(2) + '="' + v + '";';
+                            try { delete window[k]; } catch (e3) { window[k] = undefined; }
+                        }
+                    });
+                    parseTencentTxt(txt, out);
+                } catch (e2) {}
+                try { scr.remove(); } catch (e3) {}
+                resolve(Object.keys(out).length > 0);
+            }
             scr.src = url;
-            scr.onerror = function () {
-                resolve(false);
-                try { delete window[cbName]; } catch (e3) { window[cbName] = undefined; }
-            };
-            setTimeout(function () {
-                resolve(false);
-                scr.remove();
-            }, 8000);
+            scr.onload = harvest;
+            scr.onerror = function () { if (!done) { done = true; try { scr.remove(); } catch (e3) {} resolve(false); } };
+            setTimeout(function () { if (!done) { done = true; try { scr.remove(); } catch (e3) {} resolve(false); } }, 8000);
             (document.head || document.documentElement).appendChild(scr);
-            setTimeout(function () { try { scr.remove(); } catch (e3) {} }, 10000);
         });
     }
 
@@ -1829,6 +1852,14 @@ window.DAILY = {
             updateLivePriceUI();
             applyLiveToHoldings();
             var t = new Date().toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit' });
+            // 頭部同步顯示「真.即時」時間，唔好淨係得建檔日期，避免以為冇更新
+            try {
+                var ud = document.getElementById('updated-date');
+                if (ud) {
+                    ud.innerHTML = (window.DAILY && window.DAILY.date ? window.DAILY.date : '--')
+                        + '（分析內容）｜<b style="color:#a5f3a5;">即時報價 ' + t + ' 已刷新 ' + ok + ' 隻</b>';
+                }
+            } catch (e) {}
             if (status) {
                 if (ok >= syms.length * 0.7) {
                     status.textContent = '✅ 即時更新於 ' + t + '（' + ok + '/' + syms.length + ' 隻，來源：' + sources.join('／') + '）';
@@ -2081,9 +2112,167 @@ window.DAILY = {
     renderHoldings();
     renderDaily();
     loadIdxCache();
+    /* ==================== 即時財經快訊（瀏覽器直抓，免本地腳本） ====================
+       兩個來源都回傳 Access-Control-Allow-Origin，瀏覽器可直連：
+         1) 東方財富 7×24 快訊  np-weblist.eastmoney.com   → ACAO: *
+         2) 華爾街見聞 全球快訊 api-one-wscn.awtmt.com     → ACAO: echo origin
+       任何一個成功就有新聞；兩個都失敗才顯示錯誤。 */
+    var NEWS_KW = ['港股', '恒指', '恒生', '國指', '南向', '北水', '港元', '拆息', 'HIBOR', '聯繫匯率',
+        '美聯儲', '聯儲', '議息', '降息', '加息', '減息', '利率', '鮑威爾', '鲍威尔', '美债', '美債',
+        '黃金', '黄金', '金價', '金价', '白銀', '白银', '銀價', '銀價', '避險',
+        '人民幣', '人民币', '匯率', '汇率', '通脹', '通胀', 'CPI', 'PPI', 'GDP', '關稅', '关税', '出口', '降準', '降准',
+        '中國移動', '中国移动', '中移動', '長江基建', '长江基建', '滙豐', '汇丰', '恒生銀行', '恒生银行',
+        '建設銀行', '建设银行', '中國銀行', '中国银行', '騰訊', '腾讯', '阿里', '美團', '美团', '小米', '中芯',
+        '盈富', '宏橋', '宏桥', '港燈', '港灯', '神華', '神华', '中國平安', '中国平安',
+        '高股息', '股息', '派息', '分紅', '分红', '回購', '回购', '業績', '业绩', '盈警', '增持', '減持', '减持',
+        'ETF', '美股', '納指', '纳指', '標普', '标普', '道指', '恆指', '公用股', '電訊', '电讯', '銀行股', '银行股',
+        '央企', '國企', '国企', '樓市', '楼市', '地產', '地产', '油價', '油价', '原油'];
+    var LNW_ALL = [];
+    var LNW_TAB = 'rel';
+
+    function lnwEsc(s) {
+        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function lnwHits(txt) {
+        var hits = [];
+        for (var i = 0; i < NEWS_KW.length; i++) {
+            if (txt.indexOf(NEWS_KW[i]) >= 0 && hits.indexOf(NEWS_KW[i]) < 0) hits.push(NEWS_KW[i]);
+        }
+        return hits;
+    }
+    function lnwMark(txt, hits) {
+        var out = lnwEsc(txt);
+        hits.slice(0, 12).forEach(function (k) {
+            out = out.split(lnwEsc(k)).join('<span class="lnw-hit">' + lnwEsc(k) + '</span>');
+        });
+        return out;
+    }
+    function lnwTime(ts) {
+        try {
+            var d = new Date(ts);
+            var now = new Date();
+            var hm = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+            var sameDay = d.toDateString() === now.toDateString();
+            var diffMin = Math.floor((now - d) / 60000);
+            if (sameDay && diffMin >= 0 && diffMin < 60) return hm + '（' + (diffMin < 1 ? '剛剛' : diffMin + ' 分鐘前') + '）';
+            if (sameDay) return '今日 ' + hm;
+            return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + hm;
+        } catch (e) { return ''; }
+    }
+
+    /* 東方財富 7×24 快訊 */
+    function fetchNewsEastmoney() {
+        var url = 'https://np-weblist.eastmoney.com/comm/web/getFastNewsList?client=web&biz=web_724'
+            + '&fastColumn=102&sortEnd=&pageSize=40&req_trace=' + Date.now();
+        var ctrl = new AbortController();
+        var to = setTimeout(function () { ctrl.abort(); }, 10000);
+        return fetch(url, { signal: ctrl.signal, cache: 'no-store' })
+            .then(function (r) { return r.json(); })
+            .then(function (j) {
+                clearTimeout(to);
+                var list = (j && j.data && j.data.fastNewsList) || [];
+                return list.map(function (it) {
+                    return {
+                        src: '東方財富',
+                        cls: '',
+                        title: it.title || '',
+                        sum: (it.summary || '').replace(/^【[^】]*】/, ''),
+                        ts: new Date(String(it.showTime || '').replace(/-/g, '/')).getTime() || Date.now(),
+                        url: it.code ? ('https://finance.eastmoney.com/a/' + it.code + '.html') : ''
+                    };
+                });
+            }).catch(function () { clearTimeout(to); return []; });
+    }
+    /* 華爾街見聞 全球快訊 */
+    function fetchNewsWscn() {
+        var url = 'https://api-one-wscn.awtmt.com/apiv1/content/lives?channel=global-channel&client=pc&limit=40&_t=' + Date.now();
+        var ctrl = new AbortController();
+        var to = setTimeout(function () { ctrl.abort(); }, 10000);
+        return fetch(url, { signal: ctrl.signal, cache: 'no-store' })
+            .then(function (r) { return r.json(); })
+            .then(function (j) {
+                clearTimeout(to);
+                var list = (j && j.data && j.data.items) || [];
+                return list.filter(function (it) { return it && (it.title || it.content_text); }).map(function (it) {
+                    var body = (it.content_text || '').replace(/\s+/g, ' ').trim();
+                    return {
+                        src: '見聞',
+                        cls: 'wscn',
+                        title: it.title || body.slice(0, 40),
+                        sum: it.title ? body : '',
+                        ts: (it.display_time || 0) * 1000 || Date.now(),
+                        url: it.uri || ''
+                    };
+                });
+            }).catch(function () { clearTimeout(to); return []; });
+    }
+
+    function setNewsTab(t) {
+        LNW_TAB = t;
+        var a = document.getElementById('lnw-tab-all'), r = document.getElementById('lnw-tab-rel');
+        if (a) a.className = 'lnw-tab' + (t === 'all' ? ' on' : '');
+        if (r) r.className = 'lnw-tab' + (t === 'rel' ? ' on' : '');
+        renderLiveNews();
+    }
+    function renderLiveNews() {
+        var box = document.getElementById('live-news-list');
+        if (!box) return;
+        var list = LNW_ALL;
+        if (LNW_TAB === 'rel') list = LNW_ALL.filter(function (n) { return n._hits && n._hits.length; });
+        if (!list.length) {
+            box.innerHTML = '<div class="lnw-item"><div class="lnw-sum">'
+                + (LNW_ALL.length ? '暫無同你持倉直接相關嘅快訊，可切去「全部快訊」睇。' : '未取得快訊，請按上方「立即抓取最新」重試。')
+                + '</div></div>';
+            return;
+        }
+        box.innerHTML = list.slice(0, 60).map(function (n) {
+            var t = n._hits.length ? lnwMark(n.title, n._hits) : lnwEsc(n.title);
+            var s = n.sum ? (n._hits.length ? lnwMark(n.sum.slice(0, 180), n._hits) : lnwEsc(n.sum.slice(0, 180))) : '';
+            var link = n.url ? '<a href="' + lnwEsc(n.url) + '" target="_blank" rel="noopener">' + t + '</a>' : t;
+            return '<div class="lnw-item' + (n._hits.length ? ' rel' : '') + '">'
+                + '<div class="lnw-meta"><span class="lnw-src ' + n.cls + '">' + n.src + '</span>' + lnwTime(n.ts) + '</div>'
+                + '<div class="lnw-title">' + link + '</div>'
+                + (s ? '<div class="lnw-sum">' + s + '…</div>' : '')
+                + '</div>';
+        }).join('');
+    }
+
+    async function fetchLiveNews(manual) {
+        var st = document.getElementById('live-news-status');
+        if (st) st.textContent = manual ? '⏳ 抓取中…' : '⏳ 載入中…';
+        var res = await Promise.all([fetchNewsEastmoney(), fetchNewsWscn()]);
+        var merged = res[0].concat(res[1]);
+        var seen = {};
+        merged = merged.filter(function (n) {
+            var k = (n.title || '').slice(0, 24);
+            if (!k || seen[k]) return false;
+            seen[k] = 1; return true;
+        });
+        merged.sort(function (a, b) { return b.ts - a.ts; });
+        merged.forEach(function (n) { n._hits = lnwHits((n.title || '') + ' ' + (n.sum || '')); });
+        if (!merged.length) {
+            if (st) { st.textContent = '⚠️ 兩個快訊源都連唔到（可能係網絡或防火牆），稍後再試'; st.style.color = '#c62828'; }
+            renderLiveNews();
+            return;
+        }
+        LNW_ALL = merged;
+        var relN = merged.filter(function (n) { return n._hits.length; }).length;
+        var now = new Date();
+        var hm = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+        var newest = merged[0] ? lnwTime(merged[0].ts) : '';
+        if (st) {
+            st.style.color = '#2e7d32';
+            st.textContent = '✅ ' + hm + ' 更新｜共 ' + merged.length + ' 條，相關 ' + relN + ' 條｜最新一條：' + newest;
+        }
+        renderLiveNews();
+    }
+    /* ==================== 即時快訊模組結束 ==================== */
+
     renderIndexBar();
     fetchIndexQuotes();
     fetchLivePrices();
+    fetchLiveNews(false);
+    setInterval(function () { try { fetchLiveNews(false); } catch (e) {} }, 300000);
     // 隨時隨地自動更新價格：每 2 分鐘重抓一次，切回頁面時也重抓（免費、不耗配額）
     setInterval(function () { try { fetchLivePrices(); } catch (e) {} }, 120000);
     // 頂部指數：每 60 秒自動刷新
@@ -2092,6 +2281,7 @@ window.DAILY = {
         if (document.visibilityState === 'visible') {
             try { fetchIndexQuotes(); } catch (e) {}
             try { fetchLivePrices(); } catch (e) {}
+            try { fetchLiveNews(false); } catch (e) {}
         }
     });
 </script>
