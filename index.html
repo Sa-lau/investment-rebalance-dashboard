@@ -308,7 +308,7 @@
                 <div class="lnw-tab" id="lnw-tab-all" onclick="setNewsTab('all')">📰 全部快訊</div>
             </div>
             <div class="lnw-list" id="live-news-list"></div>
-            <p class="small" style="margin-top:10px;">來源：東方財富 7×24 快訊 ＋ 華爾街見聞全球快訊（兩者都開放跨域，瀏覽器直連，唔靠本地腳本）。標紅字眼＝命中你持倉／關注主題。頁面停留時每 5 分鐘自動再抓一次。</p>
+            <p class="small" style="margin-top:10px;">來源：華爾街見聞 7×24 快訊，並行抓 <b>港股／A股／美股／黃金商品／環球</b> 五條頻道（原生支援跨域，瀏覽器直連，唔靠本地腳本、唔耗任何 AI 配額）。標紅字眼＝命中你持倉／關注主題。頁面停留時每 5 分鐘自動再抓一次，切回分頁亦會即刻重抓。</p>
         </div>
 
         <!-- 今日重點新聞 -->
@@ -543,7 +543,7 @@
 <script>
 window.DAILY = {
   "date": "2026-08-06",
-  "marketSummary": "<b>2026-08-06 更新</b>：港股 恒指 -1.49%、恒生科技 -2.28%；美股 道指 +0.49%、標普 -0.17%、納指 -0.83%；商品 現貨金 US$4340.6（+0.82%）、現貨銀 US$62.24（-0.07%）、WTI 原油 US$75.32。整體 方向未明、板塊分化。<br><span style=\"opacity:.85;\">今日焦點：突然大跌！香港保险股怎么了？｜GTC泽汇资本:高金价推动矿业收入增长｜中阿（根廷）两国央行续签双边本币互换协议。</span><br><span style=\"opacity:.85;\">對你（50 歲穩健型・退休儲備）的含義：高股息核心倉續作現金流主力，成長倉控比例，黃金維持防守配置；MPF 過度集中港股仍是最大單一風險。</span>",
+  "marketSummary": "<b>2026-08-06 更新</b>：港股 恒指 -1.49%、恒生科技 -2.28%；美股 道指 +0.49%、標普 -0.17%、納指 -0.83%；商品 現貨金 US$4339.3（+0.79%）、現貨銀 US$62.23（-0.09%）、WTI 原油 US$75.25。整體 方向未明、板塊分化。<br><span style=\"opacity:.85;\">今日焦點：突然大跌！香港保险股怎么了？｜GTC泽汇资本:高金价推动矿业收入增长｜中阿（根廷）两国央行续签双边本币互换协议。</span><br><span style=\"opacity:.85;\">對你（50 歲穩健型・退休儲備）的含義：高股息核心倉續作現金流主力，成長倉控比例，黃金維持防守配置；MPF 過度集中港股仍是最大單一風險。</span>",
   "marketNote": "市場數值為 2026-08-06 收盤資訊整理，每日 16:05 自動更新；漲＝紅、跌＝綠（中國香港市場慣例）。",
   "marketCards": [
     {
@@ -603,22 +603,22 @@ window.DAILY = {
   "metalCards": [
     {
       "name": "現貨黃金",
-      "value": "US$4340.6",
+      "value": "US$4339.3",
       "cls": "pos"
     },
     {
       "name": "現貨白銀",
-      "value": "US$62.24",
+      "value": "US$62.23",
       "cls": "neg"
     },
     {
       "name": "金銀比",
-      "value": "US$62.24",
+      "value": "US$62.23",
       "cls": "neutral"
     },
     {
       "name": "人民幣金價",
-      "value": "US$4340.6",
+      "value": "US$4339.3",
       "cls": "neutral"
     }
   ],
@@ -649,9 +649,9 @@ window.DAILY = {
       "impact": "影響成長倉(9988/700/3690等)，控制比例"
     },
     {
-      "theme": "美股科技",
-      "news": "美股AI概念股回调拖累亚洲科技股，SK海力士大跌10%",
-      "impact": "短線承壓，防守為主"
+      "theme": "市場焦點",
+      "news": "德国F126护卫舰项目取消拖累营收预期，莱茵金属下调业绩指引",
+      "impact": "留意對組合影響"
     }
   ],
   "influenceRows": [
@@ -667,12 +667,12 @@ window.DAILY = {
     },
     {
       "asset": "黃金",
-      "view": "現貨金 +0.82%（US$4340.6），避險與通脹擔憂支撐。",
+      "view": "現貨金 +0.79%（US$4339.3），避險與通脹擔憂支撐。",
       "action": "目標 8%–12%；不足分批補，優先低成本 ETF(3081/2840/3170)。"
     },
     {
       "asset": "白銀",
-      "view": "白銀 -0.07%（US$62.24），工業屬性強、波動大於黃金。",
+      "view": "白銀 -0.09%（US$62.23），工業屬性強、波動大於黃金。",
       "action": "僅小比例觀察，不替代黃金。"
     },
     {
@@ -1032,7 +1032,7 @@ window.DAILY = {
     "alternative": "若不想自己調整股債比例，可改用計劃內「目標退休基金」系列（SHK140 2025／SHK141 2030／SHK142 2035 等），會按距離退休年齡自動降低股票比例；50 歲對應約 SHK141/142。或採 DIS 預設投資策略但手動把權益比例壓低。",
     "action": "建議分 2–3 次（例如每 3–6 個月一次）把 SHK126 由 80% 降至 20%、SHK145 降至 0%，釋出資金轉入 SHK148（40%）、SHK149（25%）、SHK132（15%）。同計劃內轉換免費，不必一次過做，可趁市場反彈、港股比例偏高時執行，減少在低位被迫賣出。"
   },
-  "oneLiner": "本地腳本 2026-08-06 自動更新：恒指 -1.49%、現貨金 +0.82%；個股即時價與買賣信號已刷新（規則型，非 AI）。",
+  "oneLiner": "本地腳本 2026-08-06 自動更新：恒指 -1.49%、現貨金 +0.79%；個股即時價與買賣信號已刷新（規則型，非 AI）。",
   "footerNote": "新聞由新浪財經滾動快訊每日自動抓取（最後更新 2026-08-06）；MPF 單位價來自經濟通 ET Wealth（官方報價有 T+2／T+3 延遲）；指數與個股報價來自騰訊財經、東方財富、Yahoo Finance。港股漲跌顏色按中國香港市場慣例：漲為紅，跌為綠。本頁僅供參考，不構成投資建議。",
   "livePrices": {
     "3": {
@@ -1164,7 +1164,7 @@ window.DAILY = {
     },
     "n225": {
       "price": 65683.26,
-      "prevClose": 66300.43999999999,
+      "prevClose": 66300.44,
       "asof": "2026-08-06"
     }
   },
@@ -1504,21 +1504,17 @@ window.DAILY = {
         return out;
     }
 
-    /** 第一層：fetch + 反快取 header */
+    /** 第一層：fetch（純 URL 反快取，絕不可加自訂 header）
+     *  ⚠️ 重要教訓：之前呢度加咗 Cache-Control / Pragma / If-Modified-Since 三個 header，
+     *  佢哋唔屬於 CORS 安全清單 → 瀏覽器會先發 OPTIONS preflight → qt.gtimg.cn 唔支援 OPTIONS
+     *  → 整個請求被擋（net::ERR_FAILED），結果即時報價 100% 失敗，頁面永遠只顯示嵌入舊價。
+     *  反快取改為只靠 URL 隨機參數 + cache:'no-store'（呢兩樣唔會觸發 preflight）。 */
     async function tryFetchTencent(batch, out) {
         try {
             var ctrl = new AbortController();
             var to = setTimeout(function () { ctrl.abort(); }, 9000);
             var r = await fetch('https://qt.gtimg.cn/q=' + batch.join(',') + '&_t=' + Date.now() + '&_r=' + Math.random().toString(36).slice(2),
-                {
-                    signal: ctrl.signal,
-                    cache: 'no-store',
-                    headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-                        'Pragma': 'no-cache',
-                        'If-Modified-Since': 'Thu, 01 Jan 1970 00:00:00 GMT'
-                    }
-                });
+                { signal: ctrl.signal, cache: 'no-store' });
             clearTimeout(to);
             if (!r.ok) return false;
             var txt = '';
@@ -2160,32 +2156,18 @@ window.DAILY = {
         } catch (e) { return ''; }
     }
 
-    /* 東方財富 7×24 快訊 */
-    function fetchNewsEastmoney() {
-        var url = 'https://np-weblist.eastmoney.com/comm/web/getFastNewsList?client=web&biz=web_724'
-            + '&fastColumn=102&sortEnd=&pageSize=40&req_trace=' + Date.now();
-        var ctrl = new AbortController();
-        var to = setTimeout(function () { ctrl.abort(); }, 10000);
-        return fetch(url, { signal: ctrl.signal, cache: 'no-store' })
-            .then(function (r) { return r.json(); })
-            .then(function (j) {
-                clearTimeout(to);
-                var list = (j && j.data && j.data.fastNewsList) || [];
-                return list.map(function (it) {
-                    return {
-                        src: '東方財富',
-                        cls: '',
-                        title: it.title || '',
-                        sum: (it.summary || '').replace(/^【[^】]*】/, ''),
-                        ts: new Date(String(it.showTime || '').replace(/-/g, '/')).getTime() || Date.now(),
-                        url: it.code ? ('https://finance.eastmoney.com/a/' + it.code + '.html') : ''
-                    };
-                });
-            }).catch(function () { clearTimeout(to); return []; });
-    }
-    /* 華爾街見聞 全球快訊 */
-    function fetchNewsWscn() {
-        var url = 'https://api-one-wscn.awtmt.com/apiv1/content/lives?channel=global-channel&client=pc&limit=40&_t=' + Date.now();
+    /* 快訊頻道（華爾街見聞，全部原生支援跨域，瀏覽器可直連）
+       註：東方財富 np-weblist / push2 對 github.io 來源會拒絕跨域（實測 net::ERR_FAILED），故不採用。 */
+    var NEWS_CHANNELS = [
+        { id: 'hk-stock-channel', label: '港股', cls: 'wscn' },
+        { id: 'a-stock-channel', label: 'A股', cls: '' },
+        { id: 'us-stock-channel', label: '美股', cls: '' },
+        { id: 'goldc-channel', label: '黃金商品', cls: 'wscn' },
+        { id: 'global-channel', label: '環球', cls: '' }
+    ];
+    function fetchNewsChannel(ch) {
+        var url = 'https://api-one-wscn.awtmt.com/apiv1/content/lives?channel=' + ch.id
+            + '&client=pc&limit=30&_t=' + Date.now();
         var ctrl = new AbortController();
         var to = setTimeout(function () { ctrl.abort(); }, 10000);
         return fetch(url, { signal: ctrl.signal, cache: 'no-store' })
@@ -2196,9 +2178,9 @@ window.DAILY = {
                 return list.filter(function (it) { return it && (it.title || it.content_text); }).map(function (it) {
                     var body = (it.content_text || '').replace(/\s+/g, ' ').trim();
                     return {
-                        src: '見聞',
-                        cls: 'wscn',
-                        title: it.title || body.slice(0, 40),
+                        src: ch.label,
+                        cls: ch.cls,
+                        title: it.title || body.slice(0, 42),
                         sum: it.title ? body : '',
                         ts: (it.display_time || 0) * 1000 || Date.now(),
                         url: it.uri || ''
@@ -2240,8 +2222,9 @@ window.DAILY = {
     async function fetchLiveNews(manual) {
         var st = document.getElementById('live-news-status');
         if (st) st.textContent = manual ? '⏳ 抓取中…' : '⏳ 載入中…';
-        var res = await Promise.all([fetchNewsEastmoney(), fetchNewsWscn()]);
-        var merged = res[0].concat(res[1]);
+        var res = await Promise.all(NEWS_CHANNELS.map(fetchNewsChannel));
+        var merged = [];
+        res.forEach(function (arr) { merged = merged.concat(arr); });
         var seen = {};
         merged = merged.filter(function (n) {
             var k = (n.title || '').slice(0, 24);
