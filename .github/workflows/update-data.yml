@@ -1,0 +1,82 @@
+name: 更新行情與新聞
+
+# ------------------------------------------------------------------
+# 喺 GitHub 伺服器上定時抓取行情 / 新聞，直接部署去 GitHub Pages。
+#
+#  ✅ 完全唔依賴任何本機電腦（電腦熄機都照跑）
+#  ✅ 訪客瀏覽器零外部 API 呼叫（只讀同源 live.json）
+#  ✅ 用 artifact 部署，繞過 Jekyll，唔會再出現 Page build failed
+#  ✅ 唔會每次都 commit，唔會污染 repo 歷史
+# ------------------------------------------------------------------
+
+on:
+  schedule:
+    # 時間全部為 UTC；香港時間 = UTC + 8
+    - cron: '*/10 1-8 * * 1-5'   # 港股時段 09:00–16:59 HKT，每 10 分鐘
+    - cron: '*/30 13-20 * * 1-5' # 美股時段 21:30–04:59 HKT，每 30 分鐘
+    - cron: '15 0,9,11,22 * * *' # 其餘時段保底（含週末），每日 4 次
+  workflow_dispatch:              # 允許喺 GitHub 網頁手動即時觸發
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'tools/fetch-data.js'
+      - '.github/workflows/update-data.yml'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一時間只跑一個部署，新嘅取代舊嘅排隊任務
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 取得原始碼
+        uses: actions/checkout@v4
+
+      - name: 安裝 Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 抓取行情與新聞（伺服器端）
+        run: node tools/fetch-data.js
+
+      - name: 組裝靜態站點
+        run: |
+          set -e
+          mkdir -p _site
+          cp index.html _site/index.html
+          cp live.json _site/live.json
+          for f in manifest.json service-worker.js icon-192.png icon-512.png icon.svg daily-data.js; do
+            [ -f "$f" ] && cp "$f" "_site/$f" || echo "略過 $f（唔存在）"
+          done
+          # 停用 Jekyll，確保純靜態檔案原樣發佈
+          touch _site/.nojekyll
+          echo "--- _site 內容 ---"
+          ls -la _site
+          echo "--- live.json 摘要 ---"
+          node -e "const d=require('./_site/live.json');console.log('更新時間',d.updatedHK,'| 股票',d.stats.stocks+'/'+d.stats.stocksTotal,'| 指數',d.stats.indices,'| 新聞',d.stats.news,'(相關'+d.stats.newsRelated+')');if(d.warnings.length)console.log('警告:',d.warnings.join(' / '))"
+
+      - name: 設定 Pages（切換為 Actions 部署模式）
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: 上載站點 artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
