@@ -7,9 +7,9 @@
  *  3. 輸出單一 live.json，前端只需 fetch 同源靜態檔。
  *
  * 資料源：
- *  行情主力 — Yahoo Finance chart API（全球可達，港美股 + 指數 + 商品 + 匯率）
+ *  行情主力 — Yahoo Finance chart API（全球可達，港美股 + 指數 + 商品 + 匯率 + MPF）
  *  行情補漏 — 騰訊行情 qt.gtimg.cn（恒生科技指數等 Yahoo 冇嘅代碼）
- *  MPF     — etnet / etwealth 基金頁
+ *  MPF     — Yahoo Finance（etnet / etwealth 基金頁已棄用，滯後一日）
  *  新聞     — RTHK 即時財經 RSS + Yahoo Finance RSS（港版繁中 + 美股英文）
  */
 
@@ -69,10 +69,10 @@ const COMMODITIES = [
 ];
 
 const MPF_FUNDS = [
-  { code: 'SHK126', fdId: 'ETNSI200', name: '宏利MPF香港股票基金', kind: '100% 港股股票／高風險', held: true },
-  { code: 'SHK145', fdId: 'ETNSI201', name: '宏利MPF恒指ESG基金', kind: '100% 港股股票／高風險', held: true },
-  { code: 'DIS-CAF', fdId: 'ETNSI970', name: '宏利MPF核心累積基金（DIS）', kind: '約60%環球股票+40%債券／中風險', held: false },
-  { code: 'DIS-A65F', fdId: 'ETNSI971', name: '宏利MPF 65歲後基金（DIS）', kind: '約20%環球股票+80%債券／低風險', held: false },
+  { code: 'SHK126', yahoo: '0P00008SUZ.HK', name: '宏利MPF香港股票基金', kind: '100% 港股股票／高風險', held: true },
+  { code: 'SHK145', yahoo: '0P0000WAH7.HK', name: '宏利MPF恒指ESG基金', kind: '100% 港股股票／高風險', held: true },
+  { code: 'DIS-CAF', yahoo: '0P00019VA5.HK', name: '宏利MPF核心累積基金（DIS）', kind: '約60%環球股票+40%債券／中風險', held: false },
+  { code: 'DIS-A65F', yahoo: '0P00019VA4.HK', name: '宏利MPF 65歲後基金（DIS）', kind: '約20%環球股票+80%債券／低風險', held: false },
 ];
 
 // 新聞來源（全部伺服器端抓，訪客唔會 call）
@@ -204,6 +204,14 @@ function tsToHKDate(ts) {
   return d.getUTCFullYear() + '-' + p(d.getUTCMonth() + 1) + '-' + p(d.getUTCDate());
 }
 
+function tsToHKDateSlash(ts) {
+  // 轉 yyyy/mm/dd（MPF 截至日期沿用舊格式）
+  if (!ts) return null;
+  const d = new Date(ts * 1000 + 8 * 3600 * 1000);
+  const p = (n) => String(n).padStart(2, '0');
+  return d.getUTCFullYear() + '/' + p(d.getUTCMonth() + 1) + '/' + p(d.getUTCDate());
+}
+
 /* ------------------------------------------------------------------ */
 /* 行情：騰訊（補漏用，例如恒生科技指數）                                 */
 /* ------------------------------------------------------------------ */
@@ -241,36 +249,20 @@ async function tencentQuotes(codes) {
 }
 
 /* ------------------------------------------------------------------ */
-/* MPF：etnet / etwealth                                                */
+/* MPF：Yahoo Finance                                                   */
 /* ------------------------------------------------------------------ */
 
-async function fetchMpf(fdId) {
-  const url = 'https://fc10.etwealth.com/wfc-etnet-hk/mpfDetail.do?method=searchMpfDetail' +
-    '&locale=zh_TW&appId=etnet-hk&fd_id=' + fdId + '&backUrl=';
-  const buf = await request(url, {
-    headers: { 'Accept': 'text/html,*/*', 'Referer': 'https://www.etnet.com.hk/' },
-    timeout: 25000,
-  });
-  if (!buf) return null;
-  try {
-    const flat = buf.replace(/<script[\s\S]*?<\/script>/g, ' ')
-      .replace(/<style[\s\S]*?<\/style>/g, ' ')
-      .replace(/<[^>]+>/g, '|').replace(/&nbsp;/g, ' ')
-      .replace(/\|+/g, '|').replace(/\s+/g, ' ');
-    const mp = flat.match(/價格 \(HKD\)[^0-9]*?\(截至 ([0-9/]+)\)[^0-9]*([0-9]+\.[0-9]+)/);
-    if (!mp) return null;
-    const w52 = flat.match(/52周波幅\s*\|?\s*([0-9.]+)\s*-\s*([0-9.]+)/);
-    const ytd = flat.match(/年初至今\|?\s*\|?\s*([+\-][0-9.]+%)/);
-    const fer = flat.match(/收費 \(基金開支比率\)[^0-9]*?\|\s*([0-9.]+%)/);
-    return {
-      price: parseFloat(mp[2]),
-      asof: mp[1],
-      w52lo: w52 ? parseFloat(w52[1]) : null,
-      w52hi: w52 ? parseFloat(w52[2]) : null,
-      ytd: ytd ? ytd[1] : null,
-      fer: fer ? fer[1] : null,
-    };
-  } catch (e) { return null; }
+async function yahooMpf(sym) {
+  const q = await yahooQuote(sym);
+  if (!q) return null;
+  return {
+    price: q.price,
+    prev: q.prev,
+    chg: q.chg,
+    pct: q.pct,
+    asof: tsToHKDateSlash(q.ts),
+    src: 'yahoo',
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -453,17 +445,13 @@ async function main() {
   });
   console.log('[fetch-data] 商品/匯率: ' + Object.keys(commodities).length + '/' + COMMODITIES.length);
 
-  /* ---- 5. MPF（etnet） ---- */
+  /* ---- 5. MPF（Yahoo Finance） ---- */
   const mpf = {};
-  for (const f of MPF_FUNDS) {
-    let r = null;
-    for (let a = 0; a < 3 && !r; a++) {
-      r = await fetchMpf(f.fdId);
-      if (!r) await new Promise((s) => setTimeout(s, 1200));
-    }
-    if (r) mpf[f.code] = Object.assign({ name: f.name, kind: f.kind, held: f.held }, r);
+  await pool(MPF_FUNDS, 4, async (f) => {
+    const q = await yahooMpf(f.yahoo);
+    if (q) mpf[f.code] = Object.assign({ name: f.name, kind: f.kind, held: f.held }, q);
     else warnings.push('MPF ' + f.code + ' 抓唔到');
-  }
+  });
   console.log('[fetch-data] MPF: ' + Object.keys(mpf).length + '/' + MPF_FUNDS.length);
 
   /* ---- 6. 新聞 ---- */
@@ -482,7 +470,7 @@ async function main() {
     generatedBy: process.env.GITHUB_ACTIONS ? 'github-actions' : 'local',
     sources: {
       quotes: 'Yahoo Finance + 騰訊行情',
-      mpf: 'etnet (etwealth)',
+      mpf: 'Yahoo Finance',
       news: 'RTHK 即時財經 + Yahoo Finance RSS',
     },
     stats: {
