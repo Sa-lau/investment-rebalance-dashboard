@@ -196,6 +196,14 @@ function round(n, d) {
   return Math.round(n * f) / f;
 }
 
+function tsToHKDate(ts) {
+  // Yahoo regularMarketTime 係 Unix seconds（UTC），轉香港日期字串
+  if (!ts) return null;
+  const d = new Date(ts * 1000 + 8 * 3600 * 1000);
+  const p = (n) => String(n).padStart(2, '0');
+  return d.getUTCFullYear() + '-' + p(d.getUTCMonth() + 1) + '-' + p(d.getUTCDate());
+}
+
 /* ------------------------------------------------------------------ */
 /* 行情：騰訊（補漏用，例如恒生科技指數）                                 */
 /* ------------------------------------------------------------------ */
@@ -406,21 +414,32 @@ async function main() {
 
   /* ---- 3. 指數 ---- */
   const indices = {};
-  const idxNeedTx = [];
+  // Yahoo 同騰訊一齊抓，之後按新鮮度揀
+  const yahooIdx = {};
   await pool(INDICES.filter((i) => i.yahoo), 4, async (i) => {
     const q = await yahooQuote(i.yahoo);
-    if (q) indices[i.key] = Object.assign({ name: i.name }, q);
-    else idxNeedTx.push(i);
+    if (q) yahooIdx[i.key] = Object.assign({ name: i.name }, q);
   });
+  const txIdxCodes = INDICES.filter((i) => i.tx).map((i) => i.tx);
+  const txIdx = txIdxCodes.length ? await tencentQuotes(txIdxCodes) : {};
+  const todayHK = fmtHK(hkNow()).slice(0, 10);
   for (const i of INDICES) {
-    if (!indices[i.key] && i.tx && idxNeedTx.indexOf(i) < 0) idxNeedTx.push(i);
-  }
-  const txIdxCodes = idxNeedTx.filter((i) => i.tx).map((i) => i.tx);
-  if (txIdxCodes.length) {
-    const tx = await tencentQuotes(txIdxCodes);
-    for (const i of idxNeedTx) {
-      if (i.tx && tx[i.tx]) indices[i.key] = Object.assign({ name: i.name }, tx[i.tx]);
-      else if (!indices[i.key]) warnings.push('指數 ' + i.name + ' 抓唔到');
+    const yq = yahooIdx[i.key];
+    const tq = i.tx ? txIdx[i.tx] : null;
+    if (yq && tq) {
+      // 港股指數：若 Yahoo 時間戳唔係今日，開市初段可能滯後，改用騰訊
+      const yahooDate = yq.ts ? tsToHKDate(yq.ts) : null;
+      if (i.tx.startsWith('s_hk') && yahooDate !== todayHK) {
+        indices[i.key] = Object.assign({ name: i.name }, tq);
+      } else {
+        indices[i.key] = yq;
+      }
+    } else if (yq) {
+      indices[i.key] = yq;
+    } else if (tq) {
+      indices[i.key] = Object.assign({ name: i.name }, tq);
+    } else {
+      warnings.push('指數 ' + i.name + ' 抓唔到');
     }
   }
   console.log('[fetch-data] 指數: ' + Object.keys(indices).length + '/' + INDICES.length);
