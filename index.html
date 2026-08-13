@@ -466,6 +466,49 @@
             <table id="mpf-rec-table"><thead><tr><th>基金（代碼）</th><th>建議比例</th><th>原因</th></tr></thead><tbody id="mpf-rec-rows"></tbody></table>
             <p class="small" id="mpf-alternative" style="margin-top:10px;"></p>
 
+            <!-- 50歲 MPF 供款與退休目標分析 -->
+            <div class="mpf-section" style="margin-top:18px; border-left:4px solid #3567b7; background:#eef4fb; padding:16px 18px; border-radius:8px;">
+                <h3 style="margin-bottom:8px; color:#1e3c72;">📊 50歲 MPF 供款與退休目標分析（含韓國風險澄清）</h3>
+
+                <!-- 韓國風險澄清 -->
+                <div class="summary-box" style="background:#e8f5e9; border-left:5px solid #2e7d32;">
+                    <h4 style="color:#1b5e20; margin-bottom:6px;">🌏 你驚嘅韓國，根本唔喺 SHK127 入面</h4>
+                    <p style="line-height:1.8;" id="mpf-korea"></p>
+                </div>
+
+                <!-- 建議配置（含即時價） -->
+                <h4 style="margin:14px 0 8px; color:#2c3e50;">🎯 最合適你嘅方案（適用 50→60 歲，目標 65 歲 250 萬）</h4>
+                <p class="small" style="margin-bottom:8px;">下面呢個 allocation 同時管晒「現有 100 萬」＋「每月 3,000 新供款」，唔使分開兩套。</p>
+                <table id="mpf-retire-table"><thead><tr><th>角色</th><th>基金（代碼）</th><th>風險</th><th>比重</th><th>最新單位價</th><th>原因</th></tr></thead><tbody id="mpf-retire-rows"></tbody></table>
+
+                <!-- 關鍵數字 -->
+                <div class="kpi-grid" id="mpf-retire-numbers" style="margin-top:14px;"></div>
+
+                <!-- 退休目標預測 -->
+                <div class="summary-box" style="margin-top:14px;">
+                    <h4 style="color:#856404; margin-bottom:8px;">🧮 退休目標預測（按今日日期自動計算）</h4>
+                    <div id="mpf-retire-proj" style="line-height:1.9;"></div>
+                </div>
+
+                <!-- glide path -->
+                <div class="summary-box" style="margin-top:14px; background:#e3f2fd; border-left:5px solid #1565c0;">
+                    <h4 style="color:#0d47a1; margin-bottom:6px;">⬇️ 下滑路徑（glide path）60 → 65 歲</h4>
+                    <p style="line-height:1.8;" id="mpf-glide"></p>
+                </div>
+
+                <!-- SHK127 FER + 避SHK128 -->
+                <div class="risk-warning" style="margin-top:14px;">
+                    <h4 style="margin-bottom:6px;">💸 SHK127 費用提示 ＋ 避開 SHK128</h4>
+                    <p style="line-height:1.8;" id="mpf-fer"></p>
+                </div>
+
+                <!-- 250萬名義/通脹 -->
+                <p class="small" id="mpf-inflation" style="margin-top:10px;"></p>
+
+                <!-- 轉換機制 -->
+                <p class="small" id="mpf-switch" style="margin-top:8px;"></p>
+            </div>
+
             <!-- 通用框架卡 -->
             <div class="mpf-section" style="margin-top:18px;">
                 <h3 style="margin-bottom:6px; color:#2c3e50;">📊 MPF 穩健配置框架（通用參考）</h3>
@@ -1013,6 +1056,26 @@ window.DAILY = {
       "held": true
     },
     {
+      "code": "SHK127",
+      "name": "宏利MPF國際股票基金",
+      "price": "32.190",
+      "asof": "2026/08/07",
+      "cls": "pos",
+      "note": "你未持有（建議轉入 30%）；主要跟 MSCI World（已發展市場：美/加/日/英/歐/澳），不含韓國；較上報價日 +0.74%；官方報價延遲 5 日",
+      "held": false,
+      "tag": "建議轉入"
+    },
+    {
+      "code": "SHK130",
+      "name": "宏利MPF北美股票基金",
+      "price": "38.585",
+      "asof": "2026/08/07",
+      "cls": "pos",
+      "note": "你未持有（建議轉入 20%）；美股傾斜，與國際互補；較上報價日 -0.44%；官方報價延遲 5 日",
+      "held": false,
+      "tag": "建議轉入"
+    },
+    {
       "code": "DIS-CAF",
       "name": "宏利MPF核心累積基金（DIS）",
       "price": "19.310",
@@ -1039,26 +1102,42 @@ window.DAILY = {
       {
         "code": "SHK148 核心累積基金",
         "weight": "40%",
-        "reason": "混合資產（股債兼備），波動低於純股票，提供環球分散，適合作為 MPF 主核心。"
+        "reason": "混合資產（約 60% 股票 / 40% 債），穩定核心；即 DIS 核心累積基金（0P00019VA5.HK），波動低於純股票。"
       },
       {
-        "code": "SHK149 65歲後基金",
-        "weight": "25%",
-        "reason": "混合資產、極低風險級別（3），退休前守本金的首選緩衝。"
+        "code": "SHK127 國際股票基金",
+        "weight": "30%",
+        "reason": "全球分散（MSCI World 已發展市場），不含韓國，增長主力；5 年淨回報約 6.8%/年。"
+      },
+      {
+        "code": "SHK130 北美股票基金",
+        "weight": "20%",
+        "reason": "美股傾斜，與國際互補，強化環球分散，兩隻增長引擎都同韓國無關。"
       },
       {
         "code": "SHK126 香港股票基金",
-        "weight": "20%",
-        "reason": "保留部分港股敞口，與你私人港股倉邏輯一致，但比例由 80% 降至 20%。"
-      },
-      {
-        "code": "SHK132 香港債券基金",
-        "weight": "15%",
-        "reason": "債券提供收益與下行保護，降低整體波動。"
+        "weight": "10%",
+        "reason": "保留少量港股敞口（想更穩可減至 5% 或 0%）；與你私人港股倉邏輯一致但比例由 80% 大降至 10%。"
       }
     ],
-    "alternative": "若不想自己調整股債比例，可改用計劃內「目標退休基金」系列（SHK140 2025／SHK141 2030／SHK142 2035 等），會按距離退休年齡自動降低股票比例；50 歲對應約 SHK141/142。或採 DIS 預設投資策略但手動把權益比例壓低。",
-    "action": "建議分 2–3 次（例如每 3–6 個月一次）把 SHK126 由 80% 降至 20%、SHK145 降至 0%，釋出資金轉入 SHK148（40%）、SHK149（25%）、SHK132（15%）。同計劃內轉換免費，不必一次過做，可趁市場反彈、港股比例偏高時執行，減少在低位被迫賣出。"
+    "alternative": "若不想自己調整股債比例，可採 DIS 預設投資策略（核心累積 CAF ＋ 65歲後 A65F），由系統自動逐年去風險；或改用計劃內「目標退休基金」系列（SHK140 2025／SHK141 2030／SHK142 2035 等），會按距離退休年齡自動降低股票比例。50 歲對應約 SHK141/142。",
+    "action": "MPF 只需 set 一個 allocation（百分比），同時應用於「現有 100 萬」＋「每月 3,000 新供款」，唔係分開兩套。建議一次過或分期（每 2–3 個月一次）由依家嘅 100% 港股 switch 去：SHK148 核心累積 40% ＋ SHK127 國際股票 30% ＋ SHK130 北美股票 20% ＋ SHK126 港股 10%。戶口內轉揸就得，唔使賣出套現；留意網上平台可能有轉換次數限制。60 歲起每年將約 5–10% 由股票基金轉去「65歲後基金 SHK149（R3）」或「保守基金 SHK125（R1）」，到 65 歲時股票降至約 40–50%、防守升至 30–40%。"
+  },
+  "mpfRetire": {
+    "currentAge": 50,
+    "retireAge": 65,
+    "currentBalance": 1000000,
+    "monthly": 3000,
+    "targetAmount": 2500000,
+    "expReturnLow": 4.0,
+    "expReturnMid": 5.3,
+    "expReturnHigh": 6.0,
+    "weightedRisk": 4.3,
+    "koreaNote": "SHK127 國際股票主要跟 MSCI World（已發展市場：美、加、日、英、歐、澳），韓國屬新興市場不在其內；亞太股票基金 SHK128 才含韓國，本方案不揀 SHK128。韓國股災唔會令 SHK127 大倒退。",
+    "glidePath": "60 歲起，每年將約 5–10% 由股票基金（SHK127／SHK130）轉去「65歲後基金 SHK149（R3）」或「保守基金 SHK125（R1）」；到 65 歲時股票降至約 40–50%、防守升至 30–40%，鎖定利潤、避開臨門一腳遇股災。",
+    "shk127Fer": "SHK127 費用唔平：FER（基金開支比率）約 1.77%/年，管理費 1.44%；計返淨回報要減呢筆，配置上已預留緩衝（30% 國際 ＋ 20% 北美嘅增長足以 cover）。",
+    "inflationNote": "250 萬係名義金額：15 年後購買力會低過而家（通脹），呢點可以之後再幫你計「通脹調整後實際需要」。",
+    "switchNote": "MPF 只需 set 一個 allocation（百分比），同時應用於「現有 100 萬」＋「每月 3,000 新供款」，唔係分開兩套；一次過或分期由 100% 港股 switch 去新組合，戶口內轉揸就得，唔使賣出套現。留意網上平台可能有轉換次數限制。"
   },
   "oneLiner": "本地腳本 2026-08-12 自動更新：恒指 -0.96%、現貨金 +0.61%；個股即時價與買賣信號已刷新（規則型，非 AI）。",
   "footerNote": "新聞由新浪財經滾動快訊每日自動抓取（最後更新 2026-08-12）；MPF 單位價來自經濟通 ET Wealth（官方報價有 T+2／T+3 延遲）；指數與個股報價來自騰訊財經、東方財富、Yahoo Finance。港股漲跌顏色按中國香港市場慣例：漲為紅，跌為綠。本頁僅供參考，不構成投資建議。",
@@ -1319,6 +1398,7 @@ window.DAILY = {
         renderMpfFundPrices(d.mpfFundPrices || []);
         renderDisCompare(d.disCompare || []);
         renderMpfProfile(d.mpfProfile || null);
+        renderMpfRetire();
         fillFramework(d.frameworkRows || []);
         buildActionSummary(d);
     }
@@ -1422,9 +1502,11 @@ window.DAILY = {
             const tr = document.createElement('tr');
             const isDis = r.held === false;
             if (isDis) tr.style.background = '#f7f9fc';
-            const tag = isDis
-                ? '<span style="display:inline-block;margin-left:6px;padding:1px 6px;border-radius:8px;background:#dfe9f7;color:#1e3c72;font-size:11px;">DIS 參考</span>'
-                : '<span style="display:inline-block;margin-left:6px;padding:1px 6px;border-radius:8px;background:#fde8e8;color:#c0392b;font-size:11px;">持有中</span>';
+            const tag = r.tag
+                ? '<span style="display:inline-block;margin-left:6px;padding:1px 6px;border-radius:8px;background:#e6f4ea;color:#1b7a3d;font-size:11px;">' + r.tag + '</span>'
+                : (isDis
+                    ? '<span style="display:inline-block;margin-left:6px;padding:1px 6px;border-radius:8px;background:#dfe9f7;color:#1e3c72;font-size:11px;">DIS 參考</span>'
+                    : '<span style="display:inline-block;margin-left:6px;padding:1px 6px;border-radius:8px;background:#fde8e8;color:#c0392b;font-size:11px;">持有中</span>');
             tr.innerHTML = '<td><b>' + r.code + '</b>' + tag + '</td><td>' + r.name + '</td><td class="' + (r.cls || 'neutral') + '">' + r.price + '</td><td>' + (r.asof || '') + '</td><td class="small">' + (r.note || '') + '</td>';
             tb.appendChild(tr);
         });
@@ -1459,6 +1541,106 @@ window.DAILY = {
             });
         }
         if (p.alternative) document.getElementById('mpf-alternative').innerHTML = '🔁 <b>替代方案：</b>' + p.alternative;
+    }
+    function renderMpfRetire() {
+        const d = window.DAILY || {};
+        const p = d.mpfRetire;
+        if (!p) return;
+
+        const priceOf = function (code) {
+            const map = d.mpfFundPrices || [];
+            for (let i = 0; i < map.length; i++) if (map[i].code === code) return map[i];
+            if (code === 'SHK148') return (map.filter(function (r) { return r.code === 'DIS-CAF'; }))[0];
+            if (code === 'SHK149') return (map.filter(function (r) { return r.code === 'DIS-A65F'; }))[0];
+            return null;
+        };
+        const ROLE = { 'SHK148': '核心', 'SHK127': '增長', 'SHK130': '增長', 'SHK126': '港股' };
+        const RISK = { 'SHK148': '4', 'SHK127': '5', 'SHK130': '5', 'SHK126': '6' };
+
+        // 韓國風險澄清
+        const korea = document.getElementById('mpf-korea');
+        if (korea) korea.innerHTML = p.koreaNote;
+
+        // 建議配置表（含即時單位價）
+        const tb = document.getElementById('mpf-retire-rows');
+        if (tb && d.mpfProfile && d.mpfProfile.recommended) {
+            tb.innerHTML = '';
+            d.mpfProfile.recommended.forEach(function (r) {
+                const code = (r.code || '').split(' ')[0];
+                const m = priceOf(code);
+                let priceTxt = '—';
+                if (m && m.price != null) {
+                    const pv = parseFloat(String(m.price).replace(/,/g, ''));
+                    if (isFinite(pv)) priceTxt = 'HK$' + fmtPx(pv, pxDp(pv)) + ' <span class="small" style="color:#888;">(' + (m.asof || '') + ')</span>';
+                }
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td><b>' + (ROLE[code] || '') + '</b></td>'
+                    + '<td>' + (r.code || '') + '</td>'
+                    + '<td class="small">' + (RISK[code] || '') + '</td>'
+                    + '<td class="buy">' + (r.weight || '') + '</td>'
+                    + '<td>' + priceTxt + '</td>'
+                    + '<td class="small">' + (r.reason || '') + '</td>';
+                tb.appendChild(tr);
+            });
+        }
+
+        // 關鍵數字卡
+        const years = p.retireAge - p.currentAge;
+        const kg = document.getElementById('mpf-retire-numbers');
+        if (kg) {
+            const cards = [
+                { l: '現有 MPF 結餘', v: 'HK$' + (p.currentBalance / 10000).toFixed(0) + ' 萬', s: '包括已有結餘' },
+                { l: '每月供款', v: 'HK$' + Number(p.monthly).toLocaleString('en-US'), s: '新供款自動計入' },
+                { l: '目標退休年齡', v: p.retireAge + ' 歲', s: '距今日約 ' + years + ' 年（以 ' + p.currentAge + ' 歲計）' },
+                { l: '目標金額', v: 'HK$' + (p.targetAmount / 10000).toFixed(0) + ' 萬', s: '65 歲名義結餘' },
+                { l: '加權風險', v: Number(p.weightedRisk).toFixed(1), s: '預期淨回報 5–6%/年' }
+            ];
+            kg.innerHTML = cards.map(function (c) {
+                return '<div class="kpi-card"><div class="kpi-label">' + c.l + '</div><div class="kpi-value">' + c.v + '</div><div class="kpi-sub">' + c.s + '</div></div>';
+            }).join('');
+        }
+
+        // 退休目標預測
+        const rMid = p.expReturnMid / 100;
+        const months = years * 12;
+        const fvBal = p.currentBalance * Math.pow(1 + rMid, years);
+        const im = rMid / 12;
+        const fvAnn = p.monthly * ((Math.pow(1 + im, months) - 1) / im);
+        const fv = fvBal + fvAnn;
+        const gap = fv - p.targetAmount;
+        let reqR = null;
+        for (let rr = 5; rr <= 1000; rr += 1) {
+            const r = rr / 1000;
+            const fv2 = p.currentBalance * Math.pow(1 + r, years) + p.monthly * ((Math.pow(1 + r / 12, months) - 1) / (r / 12));
+            if (fv2 >= p.targetAmount) { reqR = rr / 1000; break; }
+        }
+        const fmtW = function (x) { return (x / 10000).toFixed(1) + ' 萬'; };
+        const proj = document.getElementById('mpf-retire-proj');
+        if (proj) {
+            proj.innerHTML =
+                '以現有 <b>HK$' + (p.currentBalance / 10000).toFixed(0) + ' 萬</b> ＋ 每月 <b>HK$' + Number(p.monthly).toLocaleString('en-US') + '</b> 供款，按中期假設 <b>' + p.expReturnMid + '%/年</b> 淨回報推算：<br>'
+                + '• 65 歲預計結餘約 <b style="color:#1e3c72;">HK$' + fmtW(fv) + '</b>（現有結餘增長至約 ' + fmtW(fvBal) + ' ＋ 15 年供款增長至約 ' + fmtW(fvAnn) + '）<br>'
+                + '• 距目標 250 萬：<b>' + (gap >= 0 ? '預計盈餘約 HK$' + fmtW(gap) + '，達標有緩衝' : '尚欠約 HK$' + fmtW(-gap)) + '</b><br>'
+                + '• 只需約 <b>' + (reqR != null ? (reqR * 100).toFixed(1) + '%/年' : '—') + '</b> 淨回報即可達標；本方案預期 5–6%，留有充足緩衝。<br>'
+                + '<span class="small" style="color:#888;">＊推算基準日：' + new Date().toLocaleDateString('zh-HK') + '；實際回報受市場影響，過往表現不代表未來。</span>';
+        }
+
+        // glide path
+        const glide = document.getElementById('mpf-glide');
+        if (glide) glide.innerHTML = p.glidePath;
+
+        // SHK127 FER + 避 SHK128
+        const fer = document.getElementById('mpf-fer');
+        if (fer) fer.innerHTML = p.shk127Fer
+            + ' <b>重要：避開 SHK128（亞太股票）</b>——若你真係驚韓國，呢隻先係包亞太、可能含韓，今次方案冇揀佢。唔好因韓國跌而恐慌：你嘅全球分散組合本身已避咗呢個坑；反而要檢視嘅係你自己現有 100% 港股集中度。';
+
+        // 250萬名義/通脹
+        const inf = document.getElementById('mpf-inflation');
+        if (inf) inf.innerHTML = '⚠️ ' + p.inflationNote;
+
+        // 轉換機制
+        const sw = document.getElementById('mpf-switch');
+        if (sw) sw.innerHTML = '🔁 ' + p.switchNote;
     }
     function buildActionSummary(d) {
         const buy = [], sell = [], hold = [];
@@ -1743,9 +1925,9 @@ window.DAILY = {
             applyLiveToHoldings();
         }
 
-        // 3) MPF 基金價（etnet 伺服器端抓取）
+        // 3) MPF 基金價（Yahoo Finance 伺服器端抓取，含 SHK127/SHK130 等新基金）
         if (d && d.mpf) {
-            var mrows = (window.DAILY && window.DAILY.mpfPrices) || [];
+            var mrows = (window.DAILY && window.DAILY.mpfFundPrices) || [];
             var mchanged = false;
             mrows.forEach(function (r) {
                 var m = d.mpf[r.code];
@@ -1755,7 +1937,7 @@ window.DAILY = {
                     mchanged = true;
                 }
             });
-            if (mchanged) { try { renderMpfFundPrices(mrows); } catch (e) {} }
+            if (mchanged) { try { renderMpfFundPrices(mrows); renderMpfRetire(); } catch (e) {} }
         }
 
         // 4) 頂部標題顯示真實更新時間
@@ -2168,6 +2350,29 @@ window.DAILY = {
         if (document.visibilityState === 'visible') refreshAll(true);
     });
 </script>
-
+<script>
+    // PWA：註冊 Service Worker，並在偵測到新版本時顯示刷新提示
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+            navigator.serviceWorker.register('./service-worker.js').then(function (reg) {
+                if (reg && reg.addEventListener) {
+                    reg.addEventListener('updatefound', function () {
+                        const installing = reg.installing;
+                        if (installing) installing.addEventListener('statechange', function () {
+                            if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+                                const b = document.getElementById('update-banner');
+                                if (b) { b.style.display = 'block'; b.onclick = function () { location.reload(); }; }
+                            }
+                        });
+                    });
+                }
+            }).catch(function () {});
+        });
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', function () {
+            if (!refreshing) { refreshing = true; location.reload(); }
+        });
+    }
+</script>
 </body>
 </html>
