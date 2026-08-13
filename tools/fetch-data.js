@@ -76,7 +76,6 @@ const MPF_FUNDS = [
   { code: 'DIS-CAF', yahoo: '0P00019VA5.HK', name: '宏利MPF核心累積基金（DIS）', kind: '約60%環球股票+40%債券／中風險', held: false },
   { code: 'DIS-A65F', yahoo: '0P00019VA4.HK', name: '宏利MPF 65歲後基金（DIS）', kind: '約20%環球股票+80%債券／低風險', held: false },
   { code: 'SHK133', yahoo: '0P00008SV1.HK', name: '宏利MPF國際債券基金', kind: '國際債券／保守資產', held: false },
-  { code: 'SHK122', yahoo: '0P00008VBF.HK', name: '宏利MPF穩健基金', kind: '保證基金／保守資產', held: false },
 ];
 
 // 新聞來源（全部伺服器端抓，訪客唔會 call）
