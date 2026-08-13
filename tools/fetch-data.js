@@ -71,6 +71,8 @@ const COMMODITIES = [
 const MPF_FUNDS = [
   { code: 'SHK126', yahoo: '0P00008SUZ.HK', name: '宏利MPF香港股票基金', kind: '100% 港股股票／高風險', held: true },
   { code: 'SHK145', yahoo: '0P0000WAH7.HK', name: '宏利MPF恒指ESG基金', kind: '100% 港股股票／高風險', held: true },
+  { code: 'SHK127', yahoo: '0P00008VBC.HK', name: '宏利MPF國際股票基金', kind: '環球已發展市場股票（MSCI World）／中風險', held: false },
+  { code: 'SHK130', yahoo: '0P00008VBD.HK', name: '宏利MPF北美股票基金', kind: '北美股票／中風險', held: false },
   { code: 'DIS-CAF', yahoo: '0P00019VA5.HK', name: '宏利MPF核心累積基金（DIS）', kind: '約60%環球股票+40%債券／中風險', held: false },
   { code: 'DIS-A65F', yahoo: '0P00019VA4.HK', name: '宏利MPF 65歲後基金（DIS）', kind: '約20%環球股票+80%債券／低風險', held: false },
 ];
