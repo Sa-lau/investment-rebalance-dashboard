@@ -478,7 +478,7 @@
 
                 <!-- 建議配置（含即時價） -->
                 <h4 style="margin:14px 0 8px; color:#2c3e50;">🎯 現階段建議（第一階段：50–55 歲衝刺期）</h4>
-                <p class="small" style="margin-bottom:8px;">下面呢個 allocation 同時管晒「現有 100 萬」＋「每月 3,000 新供款」，唔使分開兩套。</p>
+                <p class="small" style="margin-bottom:8px;">下面呢個 allocation 同時管晒「現有 100 萬」＋「50–55 歲每月 3,000 新供款」（只供 5 年，共 HK$18 萬），55 歲後零供款，唔使分開兩套。</p>
                 <table id="mpf-retire-table"><thead><tr><th>角色</th><th>基金（代碼）</th><th>風險</th><th>比重</th><th>最新單位價</th><th>原因</th></tr></thead><tbody id="mpf-retire-rows"></tbody></table>
 
                 <!-- 三階段去風險化藍圖 -->
@@ -1151,31 +1151,34 @@ window.DAILY = {
       }
     ],
     "alternative": "若不想自己調整股債比例，可採 DIS 預設投資策略（核心累積 CAF ＋ 65歲後 A65F），由系統自動逐年去風險；或改用計劃內「目標退休基金」系列（SHK140 2025／SHK141 2030／SHK142 2035 等），會按距離退休年齡自動降低股票比例。50 歲對應約 SHK141/142。",
-    "action": "目標：確保 65 歲穩達 HK$250 萬（在合理年化回報 5.5%–6.5% 假設下可行），資產配置必須隨年齡「去風險化」。你現處第一階段 50–55 歲（衝刺期）：權益 50%（SHK130 30% + SHK127 20%）＋ DIS 核心累積 CAF 26% + 國際債券 20% + DIS 65歲後 A65F 4%，每月繼續供款 HK$3,000 作 DCA。註：原 SHK148 核心累積基金與 DIS-CAF 為同一隻基金（代碼 0P00019VA5.HK），已併入 DIS-CAF；原 SHK122 穩健基金已轉為 DIS-CAF 6% + DIS-A65F 4%。55 歲起逐步減股增債；60 歲後停供款並進入收成保本期。轉換係 MPF 戶口內重新 set allocation，唔使賣出套現；留意網上平台轉換次數限制，建議分 2–3 批執行。"
+    "action": "目標：確保 65 歲穩達 HK$250 萬（在合理年化回報 5.5%–6.5% 假設下可行），資產配置必須隨年齡「去風險化」。你現處第一階段 50–55 歲（衝刺期）：權益 50%（SHK130 30% + SHK127 20%）＋ DIS 核心累積 CAF 26% + 國際債券 20% + DIS 65歲後 A65F 4%，每月供款 HK$3,000 作 DCA，**只供到 55 歲**（5 年共新增 HK$18 萬）。註：原 SHK148 核心累積基金與 DIS-CAF 為同一隻基金（代碼 0P00019VA5.HK），已併入 DIS-CAF；原 SHK122 穩健基金已轉為 DIS-CAF 6% + DIS-A65F 4%。55 歲起停止新增供款，逐步減股增債；65 歲收成保本期股票降至 10%，確保本金安全、準備退休提取。轉換係 MPF 戶口內重新 set allocation，唔使賣出套現；留意網上平台轉換次數限制，建議分 2–3 批執行。"
   },
   "mpfRetire": {
     "currentAge": 50,
     "retireAge": 65,
     "currentBalance": 1000000,
     "monthly": 3000,
+    "contributionYears": 5,
+    "noContributionYears": 10,
+    "newContributionTotal": 180000,
     "targetAmount": 2500000,
     "expReturnLow": 4.0,
     "expReturnMid": 5.3,
     "expReturnHigh": 6.0,
     "weightedRisk": 4.3,
     "koreaNote": "SHK127 國際股票主要跟 MSCI World（已發展市場：美、加、日、英、歐、澳），韓國屬新興市場不在其內；亞太股票基金 SHK128 才含韓國，本方案不揀 SHK128。韓國股災唔會令 SHK127 大倒退。",
-    "glidePath": "按三階段藍圖去風險化：50–55 歲衝刺期權益維持 50%，繼續每月供款 DCA；55–60 歲穩健期停止新增供款，逐步減股票、增國際債券及 DIS 核心累積基金（CAF）；60–65 歲收成保本期股票降至 10%，主力轉入國際債券及 DIS 65歲後基金（A65F），確保本金安全、準備退休提取。由於保守部分已全部採用法定 DIS 基金，收費受 0.95% 上限規管，且 A65F 會按年自動去風險，唔使自己記得減倉。",
+    "glidePath": "按三階段藍圖去風險化：50–55 歲衝刺期權益維持 50%，繼續每月供款 HK$3,000 作 DCA；55 歲起停止新增供款（退休），之後 10 年全靠存量滾存，並逐步減股票、增國際債券及 DIS 65歲後基金（A65F）；65 歲收成保本期股票降至 10%，主力轉入國際債券及 DIS-A65F，確保本金安全、準備退休提取。由於保守部分已全部採用法定 DIS 基金，收費受 0.95% 上限規管，且 A65F 會按年自動去風險，唔使自己記得減倉。",
     "shk122ToDisNote": "🔁 已將 SHK122 穩健基金轉為 DIS 組合：SHK122 本質係保證／保守基金，收費通常高於 DIS 上限；改為 DIS-CAF ＋ DIS-A65F 後，收費受法定上限 0.75%＋0.2%＝0.95% 規管，且 DIS 自帶自動去風險（50 歲起每年約 6.7% 由 CAF 轉去 A65F，直到 64 歲）。另：原 SHK148 核心累積基金與 DIS-CAF 為同一隻基金（代碼 0P00019VA5.HK），已併入 DIS-CAF，唔使重複持有。",
     "shk127Fer": "SHK127 費用唔平：FER（基金開支比率）約 1.77%/年，管理費 1.44%；計返淨回報要減呢筆，配置上已預留緩衝（30% 國際 ＋ 20% 北美嘅增長足以 cover）。",
     "inflationNote": "250 萬係名義金額：15 年後購買力會低過而家（通脹），呢點可以之後再幫你計「通脹調整後實際需要」。",
-    "switchNote": "MPF 只需 set 一個 allocation（百分比），同時應用於「現有 100 萬」＋「每月 3,000 新供款」，唔係分開兩套；一次過或分期由 100% 港股 switch 去新組合，戶口內轉揸就得，唔使賣出套現。留意網上平台可能有轉換次數限制。"
+    "switchNote": "MPF 只需 set 一個 allocation（百分比），同時應用於「現有 100 萬」＋「每月 3,000 新供款（只供到 55 歲）」，唔係分開兩套；一次過或分期由 100% 港股 switch 去新組合，戶口內轉揸就得，唔使賣出套現。留意網上平台可能有轉換次數限制。"
   },
   "mpfStages": {
-    "summary": "為了確保在 65 歲時穩健達成 HK$250 萬目標（在合理年化回報 5.5% - 6.5% 假設下完全可行），資產配置必須隨著年齡增長而「去風險化」。以下為三個五年期的動態調整藍圖：",
+    "summary": "根據你更正嘅時間表：50 歲手持 HK$100 萬，50–55 歲每月供 HK$3,000（5 年共 HK$18 萬新供款），55 歲起零供款，65 歲目標 HK$250 萬。要達標需約 5.3%/年淨回報（在合理年化 5.5%–6.5% 假設下完全可行）。資產配置必須隨年齡「去風險化」，以下為三個五年期動態調整藍圖：",
         "phases": [
       {
         "name": "第一階段：50-55 歲（衝刺期）",
-        "contribution": "每月供款 HK$3,000",
+        "contribution": "每月供款 HK$3,000（只此 5 年，共 HK$18 萬）",
         "equity": "50.0%",
         "fixed": "50.0%",
         "strategy": "重倉北美及國際股票，利用每月供款作月供平均成本（Dollar-Cost Averaging），積極滾存資產。DIS 核心累積基金（CAF）提供環球分散及自動化資產管理；保守部分由 DIS 65歲後基金（A65F）承擔底層本金保護。",
@@ -1664,12 +1667,14 @@ window.DAILY = {
 
         // 關鍵數字卡
         const years = p.retireAge - p.currentAge;
+        const contribYears = p.contributionYears || years;
+        const noContribYears = p.noContributionYears || 0;
         const kg = document.getElementById('mpf-retire-numbers');
         if (kg) {
             const cards = [
-                { l: '現有 MPF 結餘', v: 'HK$' + (p.currentBalance / 10000).toFixed(0) + ' 萬', s: '包括已有結餘' },
-                { l: '每月供款', v: 'HK$' + Number(p.monthly).toLocaleString('en-US'), s: '新供款自動計入' },
-                { l: '目標退休年齡', v: p.retireAge + ' 歲', s: '距今日約 ' + years + ' 年（以 ' + p.currentAge + ' 歲計）' },
+                { l: '現有 MPF 結餘', v: 'HK$' + (p.currentBalance / 10000).toFixed(0) + ' 萬', s: '50 歲已有結餘' },
+                { l: '每月供款', v: 'HK$' + Number(p.monthly).toLocaleString('en-US'), s: '只供 ' + contribYears + ' 年（共 HK$' + (p.newContributionTotal / 10000).toFixed(0) + ' 萬），55 歲後零供款' },
+                { l: '目標退休年齡', v: p.retireAge + ' 歲', s: '總投資期 ' + years + ' 年（供款 ' + contribYears + ' 年＋滾存 ' + noContribYears + ' 年）' },
                 { l: '目標金額', v: 'HK$' + (p.targetAmount / 10000).toFixed(0) + ' 萬', s: '65 歲名義結餘' },
                 { l: '加權風險', v: Number(p.weightedRisk).toFixed(1), s: '預期淨回報 5–6%/年' }
             ];
@@ -1678,28 +1683,32 @@ window.DAILY = {
             }).join('');
         }
 
-        // 退休目標預測
+        // 退休目標預測（更正時間表：供款期 + 零供款滾存期）
         const rMid = p.expReturnMid / 100;
-        const months = years * 12;
+        const totalMonths = years * 12;
+        const contribMonths = contribYears * 12;
         const fvBal = p.currentBalance * Math.pow(1 + rMid, years);
         const im = rMid / 12;
-        const fvAnn = p.monthly * ((Math.pow(1 + im, months) - 1) / im);
+        const fvAnnAtEnd = p.monthly * ((Math.pow(1 + im, contribMonths) - 1) / im);
+        const fvAnn = fvAnnAtEnd * Math.pow(1 + rMid, noContribYears);
         const fv = fvBal + fvAnn;
         const gap = fv - p.targetAmount;
         let reqR = null;
         for (let rr = 5; rr <= 1000; rr += 1) {
             const r = rr / 1000;
-            const fv2 = p.currentBalance * Math.pow(1 + r, years) + p.monthly * ((Math.pow(1 + r / 12, months) - 1) / (r / 12));
+            const rMonthly = r / 12;
+            const fvAnnAtEndR = p.monthly * ((Math.pow(1 + rMonthly, contribMonths) - 1) / rMonthly);
+            const fv2 = p.currentBalance * Math.pow(1 + r, years) + fvAnnAtEndR * Math.pow(1 + r, noContribYears);
             if (fv2 >= p.targetAmount) { reqR = rr / 1000; break; }
         }
         const fmtW = function (x) { return (x / 10000).toFixed(1) + ' 萬'; };
         const proj = document.getElementById('mpf-retire-proj');
         if (proj) {
             proj.innerHTML =
-                '以現有 <b>HK$' + (p.currentBalance / 10000).toFixed(0) + ' 萬</b> ＋ 每月 <b>HK$' + Number(p.monthly).toLocaleString('en-US') + '</b> 供款，按中期假設 <b>' + p.expReturnMid + '%/年</b> 淨回報推算：<br>'
-                + '• 65 歲預計結餘約 <b style="color:#1e3c72;">HK$' + fmtW(fv) + '</b>（現有結餘增長至約 ' + fmtW(fvBal) + ' ＋ 15 年供款增長至約 ' + fmtW(fvAnn) + '）<br>'
+                '按你更正嘅時間表：現有 <b>HK$' + (p.currentBalance / 10000).toFixed(0) + ' 萬</b> ＋ <b>50–55 歲</b>每月供 <b>HK$' + Number(p.monthly).toLocaleString('en-US') + '</b>（只供 ' + contribYears + ' 年），55–65 歲<b>零供款</b>，按中期假設 <b>' + p.expReturnMid + '%/年</b> 淨回報推算：<br>'
+                + '• 65 歲預計結餘約 <b style="color:#1e3c72;">HK$' + fmtW(fv) + '</b>（現有 100 萬滾 15 年約 ' + fmtW(fvBal) + ' ＋ ' + contribYears + ' 年供款再滾 ' + noContribYears + ' 年約 ' + fmtW(fvAnn) + '）<br>'
                 + '• 距目標 250 萬：<b>' + (gap >= 0 ? '預計盈餘約 HK$' + fmtW(gap) + '，達標有緩衝' : '尚欠約 HK$' + fmtW(-gap)) + '</b><br>'
-                + '• 只需約 <b>' + (reqR != null ? (reqR * 100).toFixed(1) + '%/年' : '—') + '</b> 淨回報即可達標；本方案預期 5–6%，留有充足緩衝。<br>'
+                + '• 只需約 <b>' + (reqR != null ? (reqR * 100).toFixed(2) + '%/年' : '—') + '</b> 淨回報即可達標；本方案預期 5–6%，留有充足緩衝。<br>'
                 + '<span class="small" style="color:#888;">＊推算基準日：' + new Date().toLocaleDateString('zh-HK') + '；實際回報受市場影響，過往表現不代表未來。</span>';
         }
 
